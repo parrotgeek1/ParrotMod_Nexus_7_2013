@@ -16,6 +16,7 @@ import java.io.OutputStream;
  */
 public class MyService extends Service
 {
+    public static boolean running = false;
     private static final String TAG = "ParrotMod";
     @Override
     public IBinder onBind(Intent intent) {
@@ -54,6 +55,7 @@ public class MyService extends Service
             return s.hasNext() ? s.next().trim() : "";
         } catch (Exception e) {
             Toast.makeText(getApplicationContext(),"EXEC ERROR: "+e.getLocalizedMessage(),Toast.LENGTH_LONG).show();
+            running = false;
             return "";
         }
     }
@@ -68,6 +70,7 @@ public class MyService extends Service
         String sucheck = execCmd(new String[] {"su","-c","echo hello"});
         if(!sucheck.equals("hello")) {
             Toast.makeText(this, "ParrotMod ERROR:\n\nYOU DON'T HAVE ROOT\nOr, you denied it.", Toast.LENGTH_LONG).show();
+            running = false;
             return;
         }
         final String[] cmd = new String[]{"su", "-c", " sh '" + script + "' </dev/null >/dev/null 2>&1"};
@@ -76,5 +79,6 @@ public class MyService extends Service
                 execCmd(cmd);
             }
         }).start();
+        running = true;
     }
 }
