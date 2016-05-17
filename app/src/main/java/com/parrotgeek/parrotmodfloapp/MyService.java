@@ -66,7 +66,7 @@ public class MyService extends Service
         Log.d(TAG, "onStart");
         copyFile("ParrotMod.sh");
         copyFile("emi_config.bin");
-        String script = getApplicationContext().getApplicationInfo().dataDir + "/files/ParrotMod.sh";
+        String script = getApplicationContext().getApplicationInfo().dataDir + "/ParrotMod.sh";
         String sucheck = execCmd(new String[] {"su","-c","echo hello"});
         if(!sucheck.equals("hello")) {
             Toast.makeText(this, "ParrotMod ERROR:\n\nYOU DON'T HAVE ROOT\nOr, you denied it.", Toast.LENGTH_LONG).show();
