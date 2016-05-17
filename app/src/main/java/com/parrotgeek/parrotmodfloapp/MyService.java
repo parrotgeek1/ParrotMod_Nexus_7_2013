@@ -29,7 +29,7 @@ public class MyService extends Service
         OutputStream out = null;
         try {
             in = assetManager.open(filename);
-            String newFileName = getApplicationContext().getApplicationInfo().dataDir + "/files/" + filename;
+            String newFileName = getApplicationContext().getApplicationInfo().dataDir + "/" + filename;
             out = new FileOutputStream(newFileName);
 
             byte[] buffer = new byte[1024];
