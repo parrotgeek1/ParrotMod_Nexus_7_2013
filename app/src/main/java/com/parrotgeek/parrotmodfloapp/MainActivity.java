@@ -1,5 +1,6 @@
 package com.parrotgeek.parrotmodfloapp;
 
+import android.content.ComponentName;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -16,8 +17,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
     }
     public void start(View v) {
-        Intent serviceIntent = new Intent(this, MyService.class);
-        startService(serviceIntent);
+        sendBroadcast(new Intent("com.parrotgeek.parrotmodfloapp.action.START_SERVICE"));
     }
 
     public void website(View v) {
@@ -31,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
     }
     
     public void hideicon(View v) {
+        PackageManager pm = getPackageManager();
         pm.setComponentEnabledSetting(new ComponentName(this, MainActivity.class),PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
         if(!MyService.running) {
             start(null);

@@ -76,7 +76,10 @@ public class MyService extends Service
         final String[] cmd = new String[]{"su", "-c", " sh '" + script + "' </dev/null >/dev/null 2>&1"};
         new Thread(new Runnable() {
             public void run() {
-                execCmd(cmd);
+                while (true) {
+                    execCmd(cmd);
+                    Log.e(TAG, "run: for some reason script stopped, restarting");
+                }
             }
         }).start();
         running = true;
