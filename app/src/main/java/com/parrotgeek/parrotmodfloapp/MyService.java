@@ -70,12 +70,11 @@ public class MyService extends Service
             Toast.makeText(this, "ParrotMod ERROR:\n\nYOU DON'T HAVE ROOT\nOr, you denied it.", Toast.LENGTH_LONG).show();
             return;
         }
-        final String[] cmd = new String[]{"su", "-c", " chmod 0755 '" + script + "'; sh '" + script + "' </dev/null >/dev/null 2>&1"};
+        final String[] cmd = new String[]{"su", "-c", " sh '" + script + "' </dev/null >/dev/null 2>&1"};
         new Thread(new Runnable() {
             public void run() {
                 execCmd(cmd);
             }
         }).start();
-        Toast.makeText(this, "ParrotMod started!", Toast.LENGTH_SHORT).show();
     }
 }
