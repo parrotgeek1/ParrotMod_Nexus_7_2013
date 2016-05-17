@@ -7,10 +7,9 @@ This is a mod to greatly improve the touchscreen and multitasking performance of
 
 XDA thread: http://forum.xda-developers.com/nexus-7-2013/orig-development/beta-1-parrotmod-improve-2013-nexus-7-t3375928
 
-Download: http://download.parrotgeek.com/android/ParrotMod_Flo/App/
+Download: http://download.parrotgeek.com/android/ParrotMod_Flo
 
-GitHub: https://github.com/parrotgeek1/ParrotMod_Flo/tree/App
-Feel free to fork/pull request! But always credit me if you make something based on it and ask me for permission first.
+GitHub: https://github.com/parrotgeek1/ParrotModFloApp
 
 IMPORTANT NOTE
 --------------
@@ -43,4 +42,4 @@ How ParrotMod Works
 -------------------
 
 The touchscreen is fixed by enabling a mode that is normally only used when HDMI is plugged in, that is more resistant to electrical interference, and calibrating the EMI detection at every boot and when the screen turns off.
-I counteract the slow flash storage speed, by decreasing unnecessary reads and writes, and also optimizing how well processes share the bandwidth.
+I counteract the slow flash storage speed by decreasing unnecessary reads and writes, and also optimizing how well processes share the bandwidth.
