@@ -56,12 +56,7 @@ echo 0 > /proc/sys/vm/page-cluster # zram is not a disk with a sector size, can 
 
 emicb="$(dirname "$0")/emi_config.bin"
 
-cat /sys/power/wait_for_fb_wake
-cat "$emicb" > /dev/elan-iap
-echo ff > /proc/ektf_dbg
-
 while true; do
-    cat /sys/power/wait_for_fb_sleep
     echo parrotmod_touch_calibration > /sys/power/wake_lock
     pwr=$(cat /sys/devices/i2c-3/3-0010/power/control)
     echo on > /sys/devices/i2c-3/3-0010/power/control
@@ -71,4 +66,6 @@ while true; do
     echo $pwr > /sys/devices/i2c-3/3-0010/power/control
     echo parrotmod_touch_calibration > /sys/power/wake_unlock
     cat /sys/power/wait_for_fb_wake
+    cat "$emicb" > /dev/elan-iap
+    cat /sys/power/wait_for_fb_sleep
 done
