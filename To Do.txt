@@ -1,0 +1,18 @@
+Soon
+
+EXCLUSIVE: Fix for speaker buzzing noise when nothing is playing and screen is touched. "The audio noise problem is fixed by disabling the audio hardware immediately (50 ms) after it is not used, versus 3 seconds by default. This does not seem to affect latency."
+LCD color fix during videos (no Qualcomm CABL)
+Tethering without carrier checks on LTE Nexus 7
+add description/better app start screen
+
+Medium
+
+Fix touch sound / missing beginning of sound (add low latency path & set prop for period size & look at mixer_paths)
+cat hdmidat when power source changes
+wait until off 2sec to calibrate
+upload to play store!
+
+Later
+
+multirom USB drive loop0 block device optimize
+F2fs SYSFS tweaks https://github.com/CyanogenMod/android_kernel_asus_grouper/blob/cm-13.0/Documentation/filesystems/f2fs.txt#L154 https://github.com/CyanogenMod/android_kernel_asus_grouper/blob/cm-13.0/Documentation/ABI/testing/sysfs-fs-f2fs
