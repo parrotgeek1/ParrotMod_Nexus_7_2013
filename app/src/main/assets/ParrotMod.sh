@@ -1,5 +1,9 @@
 #!/system/bin/sh
 
+mypid=$$
+echo "-17" > /proc/$mypid/oom_adj
+chmod 0444 /proc/$mypid/oom_adj
+
 echo 48 > /sys/module/lowmemorykiller/parameters/cost # default 32
 
 echo 1 > /proc/sys/vm/highmem_is_dirtyable # allow LMK to free more ram
