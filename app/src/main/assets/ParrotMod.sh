@@ -48,7 +48,6 @@ done
 for f in /sys/fs/ext4/*; do
 	test "$f" = "/sys/fs/ext4/features" && continue
 	echo 8 > ${f}/max_writeback_mb_bump # don't spend too long writing ONE file if multiple need to write
-	echo 128 > ${f}/mb_group_prealloc # less unnecessary allocation
 done
 
 for f in /sys/devices/system/cpu/cpufreq/*; do
