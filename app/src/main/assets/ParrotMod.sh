@@ -40,7 +40,7 @@ echo 2147483647 > iosched/back_seek_max # i.e. the whole disk
 
 for m in /data /realdata /cache /system ; do
 	test ! -e $m && continue
-	mount | grep "$m" | grep -q ext4 && mount -t ext4 -o remount,noauto_da_alloc,data=writeback,journal_async_commit,journal_ioprio=7,barrier=0,noatime,dioread_nolock,nomblk_io_submit "$m" "$m"
+	mount | grep "$m" | grep -q ext4 && mount -t ext4 -o remount,noauto_da_alloc,data=writeback,journal_async_commit,journal_ioprio=7,barrier=0,dioread_nolock "$m" "$m"
 	mount | grep "$m" | grep -q f2fs && mount -o remount,nobarrier,flush_merge,inline_xattr,inline_data,inline_dentry "$m" "$m"
 done
 
