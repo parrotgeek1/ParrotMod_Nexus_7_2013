@@ -49,10 +49,6 @@ for f in /sys/fs/ext4/*; do
 	echo 8 > ${f}/max_writeback_mb_bump # don't spend too long writing ONE file if multiple need to write
 done
 
-for f in /sys/devices/system/cpu/cpufreq/*; do
-	echo 0 > ${f}/io_is_busy # no polling so io does not use cpu
-done
-
 if test -e "/sys/block/dm-0/queue"; then # encrypted
 	cd /sys/block/dm-0/queue
 	test -e scheduler && echo none > scheduler # don't need two schedulers
