@@ -22,6 +22,7 @@ echo 48 > /sys/module/lowmemorykiller/parameters/cost # default 32
 echo 1 > /proc/sys/vm/highmem_is_dirtyable # allow LMK to free more ram
 
 cd /sys/block/mmcblk0/queue
+echo 512 > nr_requests # don't clog the pipes
 echo 0 > add_random # don't contribute to entropy, it reads randomly in background
 echo 2 > rq_affinity # moving cpus is "expensive"
 
