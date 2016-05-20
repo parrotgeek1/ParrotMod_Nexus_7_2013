@@ -51,7 +51,6 @@ done
 
 if test -e "/sys/block/dm-0/queue"; then # encrypted
 	cd /sys/block/dm-0/queue
-	test -e scheduler && echo none > scheduler # don't need two schedulers
 	echo 0 > add_random # don't contribute to entropy
 	echo 2 > rq_affinity # moving cpus is "expensive"
 fi
