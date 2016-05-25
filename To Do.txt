@@ -7,7 +7,6 @@ Medium
 
 Fix touch sound / missing beginning of sound (add low latency path & set prop for period size & look at mixer_paths)
 cat hdmidat when power source changes
-wait until off 2sec to calibrate
 upload to play store!
 
 Later

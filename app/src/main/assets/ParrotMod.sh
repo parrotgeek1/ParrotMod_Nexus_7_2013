@@ -62,10 +62,12 @@ echo 0 > /proc/sys/vm/page-cluster # zram is not a disk with a sector size, can 
 
 emicb="$(dirname "$0")/emi_config.bin"
 
+cat /sys/power/wait_for_fb_wake
+
 while true; do
     echo parrotmod_touch_calibration > /sys/power/wake_lock
     status="$(cat /sys/power/wait_for_fb_status)"
-    sleep 1
+    sleep 2
     if test "$(cat /sys/power/wait_for_fb_status)" != "$status"; then
         echo parrotmod_touch_calibration > /sys/power/wake_unlock
         continue
@@ -77,7 +79,6 @@ while true; do
     sleep 1
     echo $pwr > /sys/devices/i2c-3/3-0010/power/control
     echo parrotmod_touch_calibration > /sys/power/wake_unlock
-    cat /sys/power/wait_for_fb_wake
     cat "$emicb" > /dev/elan-iap
     cat /sys/power/wait_for_fb_sleep
 done
