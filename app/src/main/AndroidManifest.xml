@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.parrotgeek.parrotmodfloapp"
     android:installLocation="internalOnly"
-    android:versionCode="92"
-    android:versionName="0.9.2">
+    android:versionCode="93"
+    android:versionName="0.9.3">
 
     <application
         android:allowBackup="true"

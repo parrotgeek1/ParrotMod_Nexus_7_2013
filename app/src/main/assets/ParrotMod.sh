@@ -64,6 +64,12 @@ emicb="$(dirname "$0")/emi_config.bin"
 
 while true; do
     echo parrotmod_touch_calibration > /sys/power/wake_lock
+    status="$(cat /sys/power/wait_for_fb_status)"
+    sleep 1
+    if test "$(cat /sys/power/wait_for_fb_status)" != "$status"; then
+        echo parrotmod_touch_calibration > /sys/power/wake_unlock
+        continue
+    fi
     pwr=$(cat /sys/devices/i2c-3/3-0010/power/control)
     echo on > /sys/devices/i2c-3/3-0010/power/control
     cat "$emicb" > /dev/elan-iap

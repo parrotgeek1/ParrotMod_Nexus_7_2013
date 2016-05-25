@@ -16,7 +16,11 @@ IMPORTANT NOTE
 
 To properly calibrate the touchscreen after you plug in or unplug a charger, you need to turn off the screen for 2 seconds and turn it on again. I am going to fix this.
 
+In order to recalibrate the screen when you switch from holding the tablet (your body acts as electrical ground) to not (ungrounded), try turning the screen off and on again. Grounded is known as earthed everywhere except US/Canada, FYI.
+
 Please disable IO scheduler tweaks in kernel apps. They override ParrotMod's meticulously optimized settings.
+
+If ParrotMod does not improve the touchscreen at all, it could be that the actual touchscreen cable is loose inside the tablet. There are YouTube videos on how to fix this.
 
 Features:
 =========
