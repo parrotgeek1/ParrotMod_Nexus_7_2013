@@ -3,8 +3,7 @@
 # stop this script from being killed
 
 mypid=$$
-echo "-17" > /proc/$mypid/oom_adj
-chmod 0444 /proc/$mypid/oom_adj
+echo "-1000" > /proc/$mypid/oom_score_adj
 
 # ram tuning
 
@@ -40,8 +39,8 @@ echo 2147483647 > iosched/back_seek_max # i.e. the whole disk
 
 for m in /data /realdata /cache /system ; do
 	test ! -e $m && continue
-	mount | grep "$m" | grep -q ext4 && mount -t ext4 -o remount,noauto_da_alloc,data=writeback,journal_async_commit,journal_ioprio=7,barrier=0,dioread_nolock "$m" "$m"
-	mount | grep "$m" | grep -q f2fs && mount -o remount,nobarrier,flush_merge,inline_xattr,inline_data,inline_dentry "$m" "$m"
+	mount | grep "$m" | grep -q ext4 && mount -t ext4 -o remount,noauto_da_alloc,journal_async_commit,journal_ioprio=7,barrier=0,dioread_nolock "$m" "$m"
+	mount | grep "$m" | grep -q f2fs && mount -t f2fs -o remount,nobarrier,flush_merge,inline_xattr,inline_data,inline_dentry "$m" "$m"
 done
 
 for f in /sys/fs/ext4/*; do
@@ -74,7 +73,6 @@ while true; do
     fi
     pwr=$(cat /sys/devices/i2c-3/3-0010/power/control)
     echo on > /sys/devices/i2c-3/3-0010/power/control
-    cat "$emicb" > /dev/elan-iap
     echo ff > /proc/ektf_dbg
     sleep 1
     echo $pwr > /sys/devices/i2c-3/3-0010/power/control
