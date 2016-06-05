@@ -2,14 +2,17 @@ package com.parrotgeek.parrotmodfloapp;
 
 import android.app.Notification;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.AssetManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.net.Uri;
+import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
@@ -91,28 +94,67 @@ public class MyService extends Service {
         }).start();
 
         new Thread(new Runnable() {
-            private SensorManager mSensorManager;
+            private SensorManager mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+            Sensor accel = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+            Sensor gyro = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE_UNCALIBRATED);
             private SensorEventListener mSensorEventListener;
+            long changed = System.currentTimeMillis();
+            Handler handler = new Handler();
             @Override
             public void run() {
                  mSensorEventListener = new SensorEventListener() {
                     @Override
                     public void onSensorChanged(SensorEvent event) {
-
+                        changed = System.currentTimeMillis();
+                        handler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                if(changed < (System.currentTimeMillis() - 1200)) {
+                                    // if didn't get sensor in 1.2sec restart it
+                                    unregister();
+                                    try {
+                                        Thread.sleep(100);
+                                    } catch (InterruptedException e) {
+                                        // empty
+                                    }
+                                    register();
+                                }
+                            }
+                        }, 1200); // 1.2sec
                     }
 
                     @Override
                     public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
+                        // don't need it
                     }
                 };
-                mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-                Sensor accel = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-                Sensor gyro = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE_UNCALIBRATED);
-                int microsec = 10000000; // 10 sec
-                mSensorManager.registerListener(mSensorEventListener,accel,microsec);
-                mSensorManager.registerListener(mSensorEventListener,gyro,microsec);
+                IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
+                filter.addAction(Intent.ACTION_SCREEN_OFF);
+                registerReceiver(mReceiver, filter);
             }
+            private void unregister() {
+                mSensorManager.unregisterListener(mSensorEventListener);
+            }
+
+            private void register() {
+                mSensorManager.registerListener(mSensorEventListener, accel, 1000000); // 1 sec
+                mSensorManager.registerListener(mSensorEventListener, gyro, 10000000); // 10 sec
+            }
+
+
+            public BroadcastReceiver mReceiver = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+
+                    if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
+                        changed = 0;
+                        unregister();
+                    } else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
+                        changed = System.currentTimeMillis();
+                        register();
+                    }
+                }
+            };
         }).start();
 
         running = true;
