@@ -2,8 +2,13 @@ package com.parrotgeek.parrotmodfloapp;
 
 import android.app.Notification;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetManager;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.net.Uri;
 import android.os.IBinder;
 import android.util.Log;
@@ -84,6 +89,32 @@ public class MyService extends Service {
                 }
             }
         }).start();
+
+        new Thread(new Runnable() {
+            private SensorManager mSensorManager;
+            private SensorEventListener mSensorEventListener;
+            @Override
+            public void run() {
+                 mSensorEventListener = new SensorEventListener() {
+                    @Override
+                    public void onSensorChanged(SensorEvent event) {
+
+                    }
+
+                    @Override
+                    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+                    }
+                };
+                mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+                Sensor accel = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+                Sensor gyro = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE_UNCALIBRATED);
+                int microsec = 10000000; // 10 sec
+                mSensorManager.registerListener(mSensorEventListener,accel,microsec);
+                mSensorManager.registerListener(mSensorEventListener,gyro,microsec);
+            }
+        }).start();
+
         running = true;
         Intent notificationIntent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
         notificationIntent.setData(Uri.parse("package:" + getPackageName()));
