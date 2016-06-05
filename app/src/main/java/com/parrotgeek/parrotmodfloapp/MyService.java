@@ -136,4 +136,10 @@ public class MyService extends Service {
         startForeground(0x600dc0de, notification);
         return START_STICKY;
     }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        sendBroadcast(new Intent("com.parrotgeek.parrotmodfloapp.action.START_SERVICE"));
+    }
 }
