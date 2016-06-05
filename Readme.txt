@@ -1,7 +1,7 @@
 What is ParrotMod?
 ==================
 
-This is a mod to greatly improve the touchscreen and multitasking performance of the 2013 Nexus 7, on ANY rooted ROM.
+This is a mod to greatly improve the touchscreen and multitasking performance of the 2013 Nexus 7, on ANY rooted ROM, and partially fix a bug with auto rotate.
 
 (Got a 2012 Nexus 7? Use this version: http://forum.xda-developers.com/nexus-7/orig-development/parrotmod-speed-2012-nexus-7-emmc-fix-t3300416)
 
@@ -16,11 +16,13 @@ IMPORTANT NOTE
 
 To properly calibrate the touchscreen after you plug in or unplug a charger, you need to turn off the screen for 2 seconds and turn it on again. I am going to fix this.
 
-In order to recalibrate the screen when you switch from holding the tablet (your body acts as electrical ground) to not (ungrounded), try turning the screen off and on again. Grounded is known as earthed everywhere except US/Canada, FYI.
+In order to recalibrate the screen when you switch from holding the tablet (your body acts as electrical ground) to not (ungrounded), try turning the screen off and on again.
 
 Please disable IO scheduler tweaks in kernel apps. They override ParrotMod's meticulously optimized settings.
 
-If ParrotMod does not improve the touchscreen at all, it could be that the actual touchscreen cable is loose inside the tablet. There are YouTube videos on how to fix this.
+If ParrotMod does not improve the touchscreen at all, it could be that the actual touchscreen cable is loose inside the tablet. There are YouTube videos on how to fix this, like this popular one: https://www.youtube.com/watch?v=cOnccu6Nbl0
+
+The feature fixing the auto rotate bug might not work for everyone. I am still developing it. If it doesn't, here is a real hardware fix: https://www.youtube.com/watch?v=LLCAeBe2hVU
 
 Features:
 =========

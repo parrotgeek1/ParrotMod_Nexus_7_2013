@@ -20,6 +20,8 @@ echo 48 > /sys/module/lowmemorykiller/parameters/cost # default 32
 
 echo 1 > /proc/sys/vm/highmem_is_dirtyable # allow LMK to free more ram
 
+settings put global fstrim_mandatory_interval 86400000 # 1 day
+
 cd /sys/block/mmcblk0/queue
 echo 512 > nr_requests # don't clog the pipes
 echo 0 > add_random # don't contribute to entropy, it reads randomly in background
@@ -39,7 +41,7 @@ echo 2147483647 > iosched/back_seek_max # i.e. the whole disk
 
 for m in /data /realdata /cache /system ; do
 	test ! -e $m && continue
-	mount | grep "$m" | grep -q ext4 && mount -t ext4 -o remount,noauto_da_alloc,journal_async_commit,journal_ioprio=7,barrier=0,dioread_nolock "$m" "$m"
+	mount | grep "$m" | grep -q ext4 && mount -t ext4 -o remount,noauto_da_alloc,journal_async_commit,journal_ioprio=7,barrier=0,dioread_nolock,inode_readahead_blocks=64 "$m" "$m"
 	mount | grep "$m" | grep -q f2fs && mount -t f2fs -o remount,nobarrier,flush_merge,inline_xattr,inline_data,inline_dentry "$m" "$m"
 done
 

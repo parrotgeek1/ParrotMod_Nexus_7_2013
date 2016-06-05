@@ -1,11 +1,10 @@
 Soon
 
-EXCLUSIVE: Fix for speaker buzzing noise when nothing is playing and screen is touched. "The audio noise problem is fixed by disabling the audio hardware immediately (50 ms) after it is not used, versus 3 seconds by default. This does not seem to affect latency."
 add description/better app start screen
 
 Medium
 
-Fix touch sound / missing beginning of sound (add low latency path & set prop for period size & look at mixer_paths)
+Fix for speaker buzzing noise but ALSO touch sound / missing beginning of sound
 cat hdmidat when power source changes
 upload to play store!
 
