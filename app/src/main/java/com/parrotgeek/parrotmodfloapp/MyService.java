@@ -131,6 +131,7 @@ public class MyService extends Service {
                 IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
                 filter.addAction(Intent.ACTION_SCREEN_OFF);
                 registerReceiver(mReceiver, filter);
+                register();
             }
             private void unregister() {
                 mSensorManager.unregisterListener(mSensorEventListener);
