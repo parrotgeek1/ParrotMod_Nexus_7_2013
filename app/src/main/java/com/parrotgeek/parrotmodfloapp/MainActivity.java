@@ -19,6 +19,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         MyService.mainActivity = this;
+        setRunning(MyService.running);
     }
     public void setRunning(final boolean running) {
         this.running = running;
@@ -52,5 +53,11 @@ public class MainActivity extends AppCompatActivity {
         }
         Toast.makeText(this,"App icon hidden. ParrotMod will still start on every boot.",Toast.LENGTH_LONG).show();
         finish();
+    }
+
+    @Override
+    public void onDestroy() {
+        MyService.mainActivity = null;
+        super.onDestroy();
     }
 }

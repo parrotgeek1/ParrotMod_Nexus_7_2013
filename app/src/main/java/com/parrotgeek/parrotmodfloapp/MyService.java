@@ -25,6 +25,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 public class MyService extends Service {
+    public static boolean running = false;
     private static final String TAG = "ParrotMod";
     public static MainActivity mainActivity;
     public class GyroRunnable implements Runnable {
@@ -129,7 +130,7 @@ public class MyService extends Service {
             return s.hasNext() ? s.next().trim() : "";
         } catch (Exception e) {
             Toast.makeText(getApplicationContext(), "EXEC ERROR: " + e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
-            if(mainActivity != null) mainActivity.setRunning(false);
+            setRunning(false);
             return "";
         }
     }
@@ -142,7 +143,7 @@ public class MyService extends Service {
         String script = getApplicationContext().getApplicationInfo().dataDir + "/ParrotMod.sh";
         boolean su = SystemPropertiesProxy.getInstance().getBoolean("supolicy.loaded",false);
         if (!su) {
-            if(mainActivity != null) mainActivity.setRunning(false);
+            setRunning(false);
             AlertDialog alertDialog = new AlertDialog.Builder(getApplicationContext()).create();
             alertDialog.setTitle("ParrotMod error");
             alertDialog.setMessage("You don't have root, or you denied the root request!");
@@ -169,7 +170,7 @@ public class MyService extends Service {
         mGyroRunnable = new GyroRunnable();
         new Thread(mGyroRunnable).start();
 
-        if(mainActivity != null) mainActivity.setRunning(true);
+        setRunning(true);
         Intent notificationIntent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
         notificationIntent.setData(Uri.parse("package:" + getPackageName()));
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -189,8 +190,13 @@ public class MyService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if(mainActivity != null) mainActivity.setRunning(false);
+        setRunning(false);
         unregisterReceiver(mGyroRunnable.mReceiver);
         sendBroadcast(new Intent("com.parrotgeek.parrotmodfloapp.action.START_SERVICE"));
+    }
+
+    private void setRunning(boolean running) {
+        if(mainActivity != null) mainActivity.setRunning(running);
+        MyService.running = running;
     }
 }
