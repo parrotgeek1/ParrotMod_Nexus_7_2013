@@ -52,4 +52,13 @@
         android:onClick="xda"
         android:layout_below="@+id/button2"
         android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="ParrotMod is not running."
+        android:id="@+id/textView2"
+        android:layout_below="@+id/button"
+        android:layout_centerHorizontal="true" />
 </RelativeLayout>

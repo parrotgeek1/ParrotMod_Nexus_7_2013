@@ -67,9 +67,8 @@ cat /sys/power/wait_for_fb_wake
 
 while true; do
     echo parrotmod_touch_calibration > /sys/power/wake_lock
-    status="$(cat /sys/power/wait_for_fb_status)"
     sleep 2
-    if test "$(cat /sys/power/wait_for_fb_status)" != "$status"; then
+    if test "$(cat /sys/power/wait_for_fb_status)" = "on"; then
         echo parrotmod_touch_calibration > /sys/power/wake_unlock
         continue
     fi

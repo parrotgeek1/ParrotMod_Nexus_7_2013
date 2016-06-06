@@ -1,9 +1,11 @@
 package com.parrotgeek.parrotmodfloapp;
 
+import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.AssetManager;
@@ -22,13 +24,75 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-/**
- * Created by ethan on 5/16/16.
- */
 public class MyService extends Service {
-    public static boolean running = false;
     private static final String TAG = "ParrotMod";
+    public static MainActivity mainActivity;
+    public class GyroRunnable implements Runnable {
+        private SensorManager mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        Sensor accel = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        Sensor gyro = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE_UNCALIBRATED);
+        private SensorEventListener mSensorEventListener;
+        long changed = System.currentTimeMillis();
+        private Runnable mRunnable1 = new Runnable() {
+            @Override
+            public void run() {
+                if(changed < (System.currentTimeMillis() - 1200)) {
+                    // if didn't get sensor in 1.2sec restart it
+                    Log.d(TAG,"---- RESET SENSORS ----");
+                    unregister();
+                    register();
+                }
+            }
+        };
+        Handler handler = new Handler();
+        @Override
+        public void run() {
+            mSensorEventListener = new SensorEventListener() {
+                @Override
+                public void onSensorChanged(SensorEvent event) {
+                    changed = System.currentTimeMillis();
+                    handler.postDelayed(mRunnable1, 1200); // 1.2sec
+                }
 
+                @Override
+                public void onAccuracyChanged(Sensor sensor, int accuracy) {
+                    // don't need it
+                }
+            };
+            IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
+            filter.addAction(Intent.ACTION_SCREEN_OFF);
+            registerReceiver(mReceiver, filter);
+            register();
+
+        }
+        private void unregister() {
+            Log.d(TAG,"unregister");
+            changed = 0;
+            handler.removeCallbacks(mRunnable1);
+            mSensorManager.unregisterListener(mSensorEventListener);
+        }
+
+        private void register() {
+            Log.d(TAG,"register");
+            changed = System.currentTimeMillis();
+            mSensorManager.registerListener(mSensorEventListener, accel, 1000000); // 1 sec
+            mSensorManager.registerListener(mSensorEventListener, gyro, 10000000); // 10 sec
+        }
+
+
+        public BroadcastReceiver mReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+
+                if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
+                    unregister();
+                } else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
+                    register();
+                }
+            }
+        };
+    }
+    private GyroRunnable mGyroRunnable;
     @Override
     public IBinder onBind(Intent intent) {
         return null;
@@ -37,8 +101,8 @@ public class MyService extends Service {
     private void copyFile(String filename) {
         AssetManager assetManager = this.getAssets();
 
-        InputStream in = null;
-        OutputStream out = null;
+        InputStream in;
+        OutputStream out;
         try {
             in = assetManager.open(filename);
             String newFileName = getApplicationContext().getApplicationInfo().dataDir + "/" + filename;
@@ -50,12 +114,11 @@ public class MyService extends Service {
                 out.write(buffer, 0, read);
             }
             in.close();
-            in = null;
             out.flush();
             out.close();
-            out = null;
         } catch (Exception e) {
             Log.e(TAG, e.getMessage());
+            Toast.makeText(getApplicationContext(), "COPY ERROR: " + e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
         }
 
     }
@@ -66,7 +129,7 @@ public class MyService extends Service {
             return s.hasNext() ? s.next().trim() : "";
         } catch (Exception e) {
             Toast.makeText(getApplicationContext(), "EXEC ERROR: " + e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
-            running = false;
+            if(mainActivity != null) mainActivity.setRunning(false);
             return "";
         }
     }
@@ -77,11 +140,21 @@ public class MyService extends Service {
         copyFile("ParrotMod.sh");
         copyFile("emi_config.bin");
         String script = getApplicationContext().getApplicationInfo().dataDir + "/ParrotMod.sh";
-        String sucheck = execCmd(new String[]{"su", "-c", "echo hello"});
-        if (!sucheck.equals("hello")) {
-            Toast.makeText(this, "ParrotMod ERROR:\n\nYOU DON'T HAVE ROOT\nOr, you denied it.", Toast.LENGTH_LONG).show();
-            running = false;
-            return START_STICKY;
+        boolean su = SystemPropertiesProxy.getInstance().getBoolean("supolicy.loaded",false);
+        if (!su) {
+            if(mainActivity != null) mainActivity.setRunning(false);
+            AlertDialog alertDialog = new AlertDialog.Builder(getApplicationContext()).create();
+            alertDialog.setTitle("ParrotMod error");
+            alertDialog.setMessage("You don't have root, or you denied the root request!");
+            // Alert dialog button
+            alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Dismiss",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();// use dismiss to cancel alert dialog
+                        }
+                    });
+            alertDialog.show();
+            return START_NOT_STICKY;
         }
         final String[] cmd = new String[]{"su", "-c", " sh '" + script + "' </dev/null >/dev/null 2>&1"};
         new Thread(new Runnable() {
@@ -93,88 +166,21 @@ public class MyService extends Service {
             }
         }).start();
 
-        new Thread(new Runnable() {
-            private SensorManager mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-            Sensor accel = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-            Sensor gyro = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE_UNCALIBRATED);
-            private SensorEventListener mSensorEventListener;
-            long changed = System.currentTimeMillis();
-            Handler handler = new Handler();
-            @Override
-            public void run() {
-                 mSensorEventListener = new SensorEventListener() {
-                    @Override
-                    public void onSensorChanged(SensorEvent event) {
-                        changed = System.currentTimeMillis();
-                        handler.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                if(changed < (System.currentTimeMillis() - 1200)) {
-                                    // if didn't get sensor in 1.2sec restart it
-                                    unregister();
-                                    try {
-                                        Thread.sleep(100);
-                                    } catch (InterruptedException e) {
-                                        // empty
-                                    }
-                                    register();
-                                }
-                            }
-                        }, 1200); // 1.2sec
-                    }
+        mGyroRunnable = new GyroRunnable();
+        new Thread(mGyroRunnable).start();
 
-                    @Override
-                    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-                        // don't need it
-                    }
-                };
-                IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
-                filter.addAction(Intent.ACTION_SCREEN_OFF);
-                registerReceiver(mReceiver, filter);
-                register();
-            }
-            private void unregister() {
-                mSensorManager.unregisterListener(mSensorEventListener);
-            }
-
-            private void register() {
-                mSensorManager.registerListener(mSensorEventListener, accel, 1000000); // 1 sec
-                mSensorManager.registerListener(mSensorEventListener, gyro, 10000000); // 10 sec
-            }
-
-
-            public BroadcastReceiver mReceiver = new BroadcastReceiver() {
-                @Override
-                public void onReceive(Context context, Intent intent) {
-
-                    if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
-                        changed = 0;
-                        unregister();
-                    } else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
-                        changed = System.currentTimeMillis();
-                        register();
-                    }
-                }
-            };
-        }).start();
-
-        running = true;
+        if(mainActivity != null) mainActivity.setRunning(true);
         Intent notificationIntent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
         notificationIntent.setData(Uri.parse("package:" + getPackageName()));
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        PendingIntent resultPendingIntent =
-                PendingIntent.getActivity(
-                        this,
-                        0,
-                        notificationIntent,
-                        PendingIntent.FLAG_UPDATE_CURRENT
-                );
+        PendingIntent resultPendingIntent = PendingIntent.getActivity(this,0,notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         Notification notification = new Notification.Builder(getApplicationContext())
-                .setContentTitle("ParrotMod Running")
+                .setContentTitle("ParrotMod is running")
                 .setContentText("Tap here and go to Notifications to hide this.")
                 .setSmallIcon(R.drawable.notificon)
                 .setContentIntent(resultPendingIntent)
                 .setWhen(0)
+                .setPriority(Notification.PRIORITY_MIN)
                 .build();
         startForeground(0x600dc0de, notification);
         return START_STICKY;
@@ -183,6 +189,8 @@ public class MyService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        if(mainActivity != null) mainActivity.setRunning(false);
+        unregisterReceiver(mGyroRunnable.mReceiver);
         sendBroadcast(new Intent("com.parrotgeek.parrotmodfloapp.action.START_SERVICE"));
     }
 }
