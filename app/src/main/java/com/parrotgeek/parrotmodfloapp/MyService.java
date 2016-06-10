@@ -16,6 +16,7 @@ import android.hardware.SensorManager;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.PowerManager;
 import android.util.Log;
 import android.widget.Toast;
 import android.app.PendingIntent;
@@ -28,6 +29,10 @@ public class MyService extends Service {
     public static boolean running = false;
     private static final String TAG = "ParrotMod";
     public static MainActivity mainActivity;
+
+    PowerManager pm;
+    PowerManager.WakeLock wl;
+
     public class GyroRunnable implements Runnable {
         private SensorManager mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         Sensor accel = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -86,8 +91,10 @@ public class MyService extends Service {
             public void onReceive(Context context, Intent intent) {
 
                 if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
+                    wl.acquire(4000); // 4 sec
                     unregister();
                 } else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
+                    if(wl.isHeld()) wl.release();
                     register();
                 }
             }
@@ -167,6 +174,9 @@ public class MyService extends Service {
             }
         }).start();
 
+        pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "parrotmod_touch_calibration");
+
         mGyroRunnable = new GyroRunnable();
         new Thread(mGyroRunnable).start();
 
@@ -184,6 +194,8 @@ public class MyService extends Service {
                 .setPriority(Notification.PRIORITY_MIN)
                 .build();
         startForeground(0x600dc0de, notification);
+
+
         return START_STICKY;
     }
 

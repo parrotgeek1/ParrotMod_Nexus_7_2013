@@ -21,6 +21,13 @@ public class MainActivity extends AppCompatActivity {
         MyService.mainActivity = this;
         setRunning(MyService.running);
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        setRunning(MyService.running);
+    }
+
     public void setRunning(final boolean running) {
         this.running = running;
         runOnUiThread(new Runnable() {
