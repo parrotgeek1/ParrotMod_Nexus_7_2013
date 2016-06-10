@@ -138,7 +138,7 @@ public class MyService extends Service {
         } catch (Exception e) {
             Toast.makeText(getApplicationContext(), "EXEC ERROR: " + e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
             setRunning(false);
-            return "";
+            return null;
         }
     }
 
@@ -153,7 +153,8 @@ public class MyService extends Service {
             setRunning(false);
             AlertDialog alertDialog = new AlertDialog.Builder(getApplicationContext()).create();
             alertDialog.setTitle("ParrotMod error");
-            alertDialog.setMessage("You don't have root, or you denied the root request!");
+            alertDialog.setMessage("You don't have root, or you denied the root request!\n\n" +
+                    "NOTE: ParrotMod currently only works with SuperSU, not King(o)Root. This will not be fixed.");
             // Alert dialog button
             alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Dismiss",
                     new DialogInterface.OnClickListener() {
@@ -167,8 +168,13 @@ public class MyService extends Service {
         final String[] cmd = new String[]{"su", "-c", " sh '" + script + "' </dev/null >/dev/null 2>&1"};
         new Thread(new Runnable() {
             public void run() {
+                String str = null;
                 while (true) {
-                    execCmd(cmd);
+                    str = execCmd(cmd);
+                    if(str == null) {
+                        Log.e(TAG, "STOP LOOP due to exec error");
+                        return;
+                    }
                     Log.e(TAG, "run: for some reason script stopped, restarting");
                 }
             }
