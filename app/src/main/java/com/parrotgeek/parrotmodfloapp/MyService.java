@@ -42,8 +42,8 @@ public class MyService extends Service {
         private Runnable mRunnable1 = new Runnable() {
             @Override
             public void run() {
-                if(changed < (System.currentTimeMillis() - 1200)) {
-                    // if didn't get sensor in 1.2sec restart it
+                if(changed < (System.currentTimeMillis() - 300)) {
+                    // if didn't get sensor in 300ms restart it
                     Log.d(TAG,"---- RESET SENSORS ----");
                     unregister();
                     register();
@@ -57,7 +57,7 @@ public class MyService extends Service {
                 @Override
                 public void onSensorChanged(SensorEvent event) {
                     changed = System.currentTimeMillis();
-                    handler.postDelayed(mRunnable1, 1200); // 1.2sec
+                    handler.postDelayed(mRunnable1, 300); // ms
                 }
 
                 @Override
@@ -81,8 +81,8 @@ public class MyService extends Service {
         private void register() {
             Log.d(TAG,"register");
             changed = System.currentTimeMillis();
-            mSensorManager.registerListener(mSensorEventListener, accel, 1000000); // 1 sec
-            mSensorManager.registerListener(mSensorEventListener, gyro, 10000000); // 10 sec
+            mSensorManager.registerListener(mSensorEventListener, accel, SensorManager.SENSOR_DELAY_NORMAL); // ~240ms
+            mSensorManager.registerListener(mSensorEventListener, gyro, 10000000); // 10 sec, basically to keep it running
         }
 
 
