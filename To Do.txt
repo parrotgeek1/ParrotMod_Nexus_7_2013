@@ -1,7 +1,3 @@
-Soon
-
-add description/better app start screen
-
 Medium
 
 Fix for speaker buzzing noise but ALSO touch sound / missing beginning of sound

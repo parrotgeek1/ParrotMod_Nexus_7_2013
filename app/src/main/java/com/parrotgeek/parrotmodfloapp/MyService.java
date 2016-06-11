@@ -153,7 +153,8 @@ public class MyService extends Service {
             setRunning(false);
             AlertDialog alertDialog = new AlertDialog.Builder(getApplicationContext()).create();
             alertDialog.setTitle("ParrotMod error");
-            alertDialog.setMessage("You don't have root, or you denied the root request!");
+            alertDialog.setMessage("You don't have root, or you denied the root request!\n\n" +
+                    "NOTE: ParrotMod currently only works with SuperSU, not King(o)Root. This will not be fixed.");
             // Alert dialog button
             alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Dismiss",
                     new DialogInterface.OnClickListener() {

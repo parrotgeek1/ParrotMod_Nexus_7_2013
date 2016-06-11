@@ -12,7 +12,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Unfortunately, Android requires this app to have an icon. So, just click the button to enable ParrotMod. Root is required."
+        android:text="Click the button to enable ParrotMod, and enjoy your perfectly working touchscreen and auto rotate! (Root is required.)\n\nNote: you must turn off the screen for 2 seconds and turn it on again to fully calibrate the touchscreen for the first time."
         android:id="@+id/textView" />
 
     <Button
@@ -60,5 +60,13 @@
         android:text="ParrotMod is not running."
         android:id="@+id/textView2"
         android:layout_below="@+id/button"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:id="@+id/version"
+        android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true" />
 </RelativeLayout>

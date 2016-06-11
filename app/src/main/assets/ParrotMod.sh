@@ -5,7 +5,19 @@
 mypid=$$
 echo "-1000" > /proc/$mypid/oom_score_adj
 
-emicb="$(pwd)/$(dirname "$0")/emi_config.bin"
+olddir="$(pwd)"
+emicb="$(dirname "$0")/emi_config.bin"
+
+# ram optimize atlas service
+
+read buildfp type width height count flags < /data/system/framework_atlas.config
+
+echo "$buildfp" > /data/system/framework_atlas.config
+echo "$type" >> /data/system/framework_atlas.config
+echo 768 >> /data/system/framework_atlas.config
+echo 768 >> /data/system/framework_atlas.config
+echo "$count" >> /data/system/framework_atlas.config
+echo "$flags" >> /data/system/framework_atlas.config
 
 # ram tuning
 
@@ -63,6 +75,8 @@ fi
 echo 60 > /proc/sys/vm/swappiness # for some reason, 0 is default on flo, which messes up zram
 echo 0 > /proc/sys/vm/page-cluster # zram is not a disk with a sector size, can swap 1 page at once
 
+cd "$olddir"
+
 # postboot calibration
 
 calib() {
@@ -72,8 +86,6 @@ calib() {
     sleep 1
     echo $pwr > /sys/devices/i2c-3/3-0010/power/control
 }
-
-calib
 
 while true; do
     cat /sys/power/wait_for_fb_wake
