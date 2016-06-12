@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.parrotgeek.parrotmodfloapp"
     android:installLocation="internalOnly"
-    android:versionCode="97"
-    android:versionName="0.9.7">
+    android:versionCode="98"
+    android:versionName="0.9.8">
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <application
