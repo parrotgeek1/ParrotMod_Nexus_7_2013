@@ -18,7 +18,7 @@ In order to recalibrate the screen when you switch from holding the tablet (your
 
 Please disable IO scheduler tweaks in kernel apps. They override ParrotMod's meticulously optimized settings.
 
-If ParrotMod does not improve the touchscreen at all, it could be that the actual touchscreen cable is loose inside the tablet. There are YouTube videos on how to fix this, like this popular one: https://www.youtube.com/watch?v=cOnccu6Nbl0
+If ParrotMod does not improve the touchscreen at all, it could be that the touchscreen cable is loose inside the tablet. There are YouTube videos on how to fix this, like this popular one: https://www.youtube.com/watch?v=cOnccu6Nbl0
 
 The feature fixing the auto rotate bug might not work for everyone. If it doesn't, here is a real hardware fix: https://www.youtube.com/watch?v=LLCAeBe2hVU
 

@@ -33,7 +33,7 @@ public class SuShell {
             dos.close();
             proc.waitFor();
         } catch (Exception e) {
-            Log.e("its",e.getLocalizedMessage());
+            Log.e("sushell",e.getLocalizedMessage());
         }
     }
 }
