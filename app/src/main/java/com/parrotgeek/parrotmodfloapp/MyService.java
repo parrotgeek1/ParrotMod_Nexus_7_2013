@@ -33,6 +33,10 @@ public class MyService extends Service {
     PowerManager pm;
     PowerManager.WakeLock wl;
 
+    SuShell shell;
+
+    String emicb;
+
     public class GyroRunnable implements Runnable {
         private SensorManager mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         Sensor accel = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -67,6 +71,9 @@ public class MyService extends Service {
             };
             IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
             filter.addAction(Intent.ACTION_SCREEN_OFF);
+            filter.addAction(Intent.ACTION_POWER_CONNECTED);
+            filter.addAction(Intent.ACTION_POWER_DISCONNECTED);
+            filter.addAction("android.intent.action.HDMI_PLUGGED");
             registerReceiver(mReceiver, filter);
             register();
 
@@ -89,13 +96,18 @@ public class MyService extends Service {
         public BroadcastReceiver mReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-
                 if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
                     wl.acquire(4000); // 4 sec
                     unregister();
                 } else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
                     if(wl.isHeld()) wl.release();
                     register();
+                } else if(intent.getAction().equals(Intent.ACTION_POWER_CONNECTED)
+                        ||intent.getAction().equals(Intent.ACTION_POWER_DISCONNECTED)
+                        ||intent.getAction().equals("android.intent.action.HDMI_PLUGGED")) {
+                    wl.acquire(500);
+                    Log.d("power",intent.getAction());
+                    shell.run("cat '"+emicb+"' > /dev/elan-iap");
                 }
             }
         };
@@ -180,6 +192,9 @@ public class MyService extends Service {
             }
         }).start();
 
+        shell = new SuShell();
+        emicb = getApplicationContext().getApplicationInfo().dataDir + "/emi_config.bin";
+
         pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
         wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "parrotmod_touch_calibration");
 
@@ -211,6 +226,7 @@ public class MyService extends Service {
         setRunning(false);
         unregisterReceiver(mGyroRunnable.mReceiver);
         sendBroadcast(new Intent("com.parrotgeek.parrotmodfloapp.action.START_SERVICE"));
+        shell.end();
     }
 
     private void setRunning(boolean running) {

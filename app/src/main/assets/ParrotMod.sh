@@ -8,17 +8,6 @@ echo "-1000" > /proc/$mypid/oom_score_adj
 olddir="$(pwd)"
 emicb="$(dirname "$0")/emi_config.bin"
 
-# ram optimize atlas service
-
-read buildfp type width height count flags < /data/system/framework_atlas.config
-
-echo "$buildfp" > /data/system/framework_atlas.config
-echo "$type" >> /data/system/framework_atlas.config
-echo 768 >> /data/system/framework_atlas.config
-echo 768 >> /data/system/framework_atlas.config
-echo "$count" >> /data/system/framework_atlas.config
-echo "$flags" >> /data/system/framework_atlas.config
-
 # ram tuning
 
 # these are from Intel's recommendation for 2GB/xhdpi tablet devices

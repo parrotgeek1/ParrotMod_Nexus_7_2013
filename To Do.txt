@@ -1,7 +1,6 @@
 Medium
 
 Fix for speaker buzzing noise but ALSO touch sound / missing beginning of sound
-cat hdmidat when power source changes
 upload to play store!
 
 Later
