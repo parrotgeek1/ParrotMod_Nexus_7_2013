@@ -5,8 +5,8 @@ import android.util.Log;
 import java.io.DataOutputStream;
 
 public class SuShell {
-    java.lang.Process proc;
-    DataOutputStream dos;
+    private java.lang.Process proc;
+    private DataOutputStream dos;
 
     public SuShell() {
         try {

@@ -30,14 +30,13 @@ public class MyService extends Service {
     private static final String TAG = "ParrotMod";
     public static MainActivity mainActivity;
 
-    PowerManager pm;
-    PowerManager.WakeLock wl;
+    private PowerManager.WakeLock wl;
 
-    SuShell shell;
+    private SuShell shell;
 
-    String emicb;
+    private String emicb;
 
-    public class GyroRunnable implements Runnable {
+    private class GyroRunnable implements Runnable {
         private SensorManager mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         Sensor accel = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         Sensor gyro = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE_UNCALIBRATED);
@@ -180,7 +179,7 @@ public class MyService extends Service {
         final String[] cmd = new String[]{"su", "-c", " sh '" + script + "' </dev/null >/dev/null 2>&1"};
         new Thread(new Runnable() {
             public void run() {
-                String str = null;
+                String str;
                 while (true) {
                     str = execCmd(cmd);
                     if(str == null) {
@@ -195,7 +194,7 @@ public class MyService extends Service {
         shell = new SuShell();
         emicb = getApplicationContext().getApplicationInfo().dataDir + "/emi_config.bin";
 
-        pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
         wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "parrotmod_touch_calibration");
 
         mGyroRunnable = new GyroRunnable();

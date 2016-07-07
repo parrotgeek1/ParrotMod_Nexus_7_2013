@@ -3,7 +3,6 @@ package com.parrotgeek.parrotmodfloapp;
 import android.content.ComponentName;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.content.Intent;
 import android.net.Uri;
@@ -26,7 +25,9 @@ public class MainActivity extends AppCompatActivity {
         try {
             String versionName = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
             ((TextView) findViewById(R.id.version)).setText("Version "+versionName);
-        } catch (Exception e){}
+        } catch (Exception e){
+            finish();
+        }
     }
 
     @Override
