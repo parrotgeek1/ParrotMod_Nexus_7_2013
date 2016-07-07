@@ -13,10 +13,13 @@ import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
     private boolean running = false;
+    private BootReceiver rec;
+    private Intent bcintent = new Intent(Intent.ACTION_BOOT_COMPLETED);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        rec = new BootReceiver();
         setContentView(R.layout.activity_main);
         MyService.mainActivity = this;
         setRunning(MyService.running);
@@ -43,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void start(View v) {
-        sendBroadcast(new Intent("com.parrotgeek.parrotmodfloapp.action.START_SERVICE"));
+	rec.onReceive(getApplicationContext(), bcintent);
     }
 
     public void website(View v) {

@@ -41,7 +41,10 @@ public class BootReceiver extends BroadcastReceiver
             }
             Log.i("BootReceiver", "started");
         } else {
-            Log.i("BootReceiver", "not first user, so not starting");
+            Log.i("BootReceiver", "not first user, so disable myself");
+            PackageManager pm = arg0.getPackageManager();
+            pm.setComponentEnabledSetting(new ComponentName(arg0, MainActivity.class),PackageManager.COMPONENT_ENABLED_STATE_DISABLED, 0);
+
         }
     }
 }

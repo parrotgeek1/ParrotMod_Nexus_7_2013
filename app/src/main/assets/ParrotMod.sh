@@ -25,7 +25,6 @@ echo 1 > /proc/sys/vm/highmem_is_dirtyable # allow LMK to free more ram
 
 settings put global fstrim_mandatory_interval 86400000 # 1 day
 settings put global storage_benchmark_interval 9223372036854775807 # effectively, never
-rm /data/system/last_fstrim # force trim at next idle
 
 cd /sys/block/mmcblk0/queue
 echo 512 > nr_requests # don't clog the pipes
@@ -34,13 +33,16 @@ echo 2 > rq_affinity # moving cpus is "expensive"
 
 # https://www.kernel.org/doc/Documentation/block/cfq-iosched.txt
 
-echo cfq > scheduler
-echo 0 > iosched/slice_idle # never idle WITHIN groups
-echo 10 > iosched/group_idle # BUT make sure there is differentiation between cgroups
-echo 1 > iosched/back_seek_penalty # no penalty
-echo 16 > iosched/quantum # default 8. Removes bottleneck
-echo 4 > iosched/slice_async_rq # default 2. See above
-echo 2147483647 > iosched/back_seek_max # i.e. the whole disk
+if test "$(cat scheduler)" = "cfq"; then
+	echo 0 > iosched/slice_idle # never idle WITHIN groups
+	echo 10 > iosched/group_idle # BUT make sure there is differentiation between cgroups
+	echo 1 > iosched/back_seek_penalty # no penalty
+	echo 16 > iosched/quantum # default 8. Removes bottleneck
+	echo 4 > iosched/slice_async_rq # default 2. See above
+	echo 2147483647 > iosched/back_seek_max # i.e. the whole disk
+fi
+
+cd "$olddir"
 
 # fs tune
 
@@ -55,25 +57,48 @@ for f in /sys/fs/ext4/*; do
 	echo 8 > ${f}/max_writeback_mb_bump # don't spend too long writing ONE file if multiple need to write
 done
 
-if test -e "/sys/block/dm-0/queue"; then # encrypted
-	cd /sys/block/dm-0/queue
-	echo 0 > add_random # don't contribute to entropy
-	echo 2 > rq_affinity # moving cpus is "expensive"
-fi
+for f in /sys/block/*; do
+	echo 0 > "${f}/queue/add_random" # don't contribute to entropy
+done
+
+for f in /sys/block/dm-*; do # encrypted filesystems
+	echo 2 > "${f}/queue/rq_affinity" # moving cpus is "expensive"
+	echo 0 > "${f}/queue/rotational"
+done
+
+for f in /sys/block/loop*; do # loopback, like multirom USB boot
+	echo none > "${f}/queue/scheduler"
+	echo 0 > "${f}/queue/read_ahead_kb" # because there is already readahead on the USB device
+	echo 0 > "${f}/queue/rotational"
+done
 
 echo 60 > /proc/sys/vm/swappiness # for some reason, 0 is default on flo, which messes up zram
 echo 0 > /proc/sys/vm/page-cluster # zram is not a disk with a sector size, can swap 1 page at once
 
-cd "$olddir"
+if test -e /sys/block/zram0; then
+	swapoff /dev/block/zram0 >/dev/null 2>&1
+	echo 1 > /sys/block/zram0/reset
+	echo 2 > /sys/block/zram0/max_comp_streams # half the number of cores
+	test -e /sys/block/zram0/comp_algorithm && echo lz4 > /sys/block/zram0/comp_algorithm # it's faster than lzo but some kernels don't have it
+	echo $((512*1024*1024)) > /sys/block/zram0/disksize
+	mkswap /dev/block/zram0
+	swapon -p 32767 /dev/block/zram0 # highest possible priority
+fi
+
+for f in /sys/block/zram*; do
+	echo noop > "${f}/queue/scheduler" # none is NOT noop, noop still does merges, which we want
+	echo 0 > "${f}/queue/read_ahead_kb" # compression is cpu intensive
+	echo 0 > "${f}/queue/rotational"
+done
 
 # postboot calibration
 
-calib() {
-    pwr=$(cat /sys/devices/i2c-3/3-0010/power/control)
+function calib() {
+    pwr="$(cat /sys/devices/i2c-3/3-0010/power/control)"
     echo on > /sys/devices/i2c-3/3-0010/power/control
     echo ff > /proc/ektf_dbg
     sleep 1
-    echo $pwr > /sys/devices/i2c-3/3-0010/power/control
+    echo "$pwr" > /sys/devices/i2c-3/3-0010/power/control
 }
 
 while true; do
