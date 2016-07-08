@@ -17,6 +17,7 @@ public class SystemPropertiesProxy {
         try {
             setClassLoader(cl);
         } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -38,8 +39,8 @@ public class SystemPropertiesProxy {
             throws ClassNotFoundException, SecurityException, NoSuchMethodException {
         if (cl == null) cl = this.getClass().getClassLoader();
         SystemProperties = cl.loadClass("android.os.SystemProperties");
-        getString = SystemProperties.getMethod("get", new Class[]{ String.class, String.class });
-        getBoolean = SystemProperties.getMethod("getBoolean", new Class[]{ String.class, boolean.class });
+        getString = SystemProperties.getMethod("get", String.class, String.class);
+        getBoolean = SystemProperties.getMethod("getBoolean", String.class, boolean.class);
     }
 
     /**
@@ -53,6 +54,7 @@ public class SystemPropertiesProxy {
      * @throws IllegalArgumentException
      *           if the key exceeds 32 characters
      */
+    @SuppressWarnings("unused")
     public String get(String key, String def)
             throws IllegalArgumentException {
 
@@ -60,10 +62,11 @@ public class SystemPropertiesProxy {
 
         String ret = null;
         try {
-            ret = (String) getString.invoke(SystemProperties, new Object[]{ key, def });
+            ret = (String) getString.invoke(SystemProperties, key, def);
         } catch (IllegalArgumentException e) {
             throw e;
         } catch (Exception e) {
+            e.printStackTrace();
         }
         // if return value is null or empty, use the default
         // since neither of those are valid values
@@ -98,10 +101,11 @@ public class SystemPropertiesProxy {
 
         Boolean ret = def;
         try {
-            ret = (Boolean) getBoolean.invoke(SystemProperties, new Object[]{ key, def });
+            ret = (Boolean) getBoolean.invoke(SystemProperties, key, def);
         } catch (IllegalArgumentException e) {
             throw e;
         } catch (Exception e) {
+            e.printStackTrace();
         }
         return ret;
     }

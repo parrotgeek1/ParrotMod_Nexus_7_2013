@@ -23,8 +23,9 @@ public class MainActivity extends AppCompatActivity {
         MyService.mainActivity = this;
         setRunning(MyService.running);
         try {
-            String versionName = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
-            ((TextView) findViewById(R.id.version)).setText("Version "+versionName);
+            String versionName = "Version " + getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+            TextView tv = (TextView) findViewById(R.id.version);
+            if(tv != null) tv.setText(versionName);
         } catch (Exception e){
             finish();
         }
@@ -41,7 +42,9 @@ public class MainActivity extends AppCompatActivity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                ((TextView)findViewById(R.id.textView2)).setText("ParrotMod is " + (running ? "" : "not ") + "running.");
+                TextView tv = (TextView)findViewById(R.id.textView2);
+                String state = "ParrotMod is " + (running ? "" : "not ") + "running.";
+                if(tv != null) tv.setText(state);
             }
         });
     }

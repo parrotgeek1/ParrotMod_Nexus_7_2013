@@ -78,14 +78,12 @@ public class MyService extends Service {
 
         }
         private void unregister() {
-            Log.d(TAG,"unregister");
             changed = 0;
             handler.removeCallbacks(mRunnable1);
             mSensorManager.unregisterListener(mSensorEventListener);
         }
 
         private void register() {
-            Log.d(TAG,"register");
             changed = System.currentTimeMillis();
             mSensorManager.registerListener(mSensorEventListener, accel, SensorManager.SENSOR_DELAY_NORMAL); // ~240ms
             mSensorManager.registerListener(mSensorEventListener, gyro, 10000000); // 10 sec, basically to keep it running
@@ -105,7 +103,6 @@ public class MyService extends Service {
                         ||intent.getAction().equals(Intent.ACTION_POWER_DISCONNECTED)
                         ||intent.getAction().equals("android.intent.action.HDMI_PLUGGED")) {
                     wl.acquire(500);
-                    Log.d("power",intent.getAction());
                     shell.run("cat '"+emicb+"' > /dev/elan-iap");
                 }
             }
@@ -155,7 +152,6 @@ public class MyService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(TAG, "onStartCommand");
         copyFile("ParrotMod.sh");
         copyFile("emi_config.bin");
         String script = getApplicationContext().getApplicationInfo().dataDir + "/ParrotMod.sh";
@@ -186,7 +182,6 @@ public class MyService extends Service {
                         Log.e(TAG, "STOP LOOP due to exec error");
                         return;
                     }
-                    Log.e(TAG, "run: for some reason script stopped, restarting");
                 }
             }
         }).start();
