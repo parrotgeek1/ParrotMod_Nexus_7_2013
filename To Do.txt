@@ -5,4 +5,3 @@ Fix for speaker buzzing noise but ALSO touch sound / missing beginning of sound
 Later
 
 F2fs SYSFS tweaks https://github.com/CyanogenMod/android_kernel_asus_grouper/blob/cm-13.0/Documentation/filesystems/f2fs.txt#L154 https://github.com/CyanogenMod/android_kernel_asus_grouper/blob/cm-13.0/Documentation/ABI/testing/sysfs-fs-f2fs
-GPS fix?

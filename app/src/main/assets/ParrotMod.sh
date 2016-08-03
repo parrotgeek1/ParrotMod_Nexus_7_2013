@@ -23,6 +23,11 @@ echo 48 > /sys/module/lowmemorykiller/parameters/cost # default 32
 
 echo 1 > /proc/sys/vm/highmem_is_dirtyable # allow LMK to free more ram
 
+# scheduler tuning
+for feat in ARCH_POWER NO_RT_RUNTIME_SHARE NO_TTWU_QUEUE; do
+    echo "$feat" > /sys/kernel/debug/sched_features
+done
+
 settings put global fstrim_mandatory_interval 86400000 # 1 day
 settings put global storage_benchmark_interval 9223372036854775807 # effectively, never
 
@@ -31,9 +36,10 @@ echo 512 > nr_requests # don't clog the pipes
 echo 0 > add_random # don't contribute to entropy, it reads randomly in background
 echo 2 > rq_affinity # moving cpus is "expensive"
 
-# https://www.kernel.org/doc/Documentation/block/cfq-iosched.txt
+grep -Fq 'row' scheduler && echo row > scheduler # prefer row
 
-if test "$(cat scheduler)" = "cfq"; then
+if grep -Fq '[cfq]' scheduler ; then
+# https://www.kernel.org/doc/Documentation/block/cfq-iosched.txt
 	echo 0 > iosched/slice_idle # never idle WITHIN groups
 	echo 10 > iosched/group_idle # BUT make sure there is differentiation between cgroups
 	echo 1 > iosched/back_seek_penalty # no penalty
@@ -72,13 +78,13 @@ for f in /sys/block/loop*; do # loopback, like multirom USB boot
 	echo 0 > "${f}/queue/rotational"
 done
 
-echo 60 > /proc/sys/vm/swappiness # for some reason, 0 is default on flo, which messes up zram
+echo 40 > /proc/sys/vm/swappiness # 60 default is too high especially with lmk cost changed
 echo 0 > /proc/sys/vm/page-cluster # zram is not a disk with a sector size, can swap 1 page at once
 
 if test -e /sys/block/zram0; then
 	swapoff /dev/block/zram0 >/dev/null 2>&1
 	echo 1 > /sys/block/zram0/reset
-	echo 2 > /sys/block/zram0/max_comp_streams # half the number of cores
+	test -e /sys/block/zram0/max_comp_streams && echo 2 > /sys/block/zram0/max_comp_streams # half the number of cores
 	test -e /sys/block/zram0/comp_algorithm && echo lz4 > /sys/block/zram0/comp_algorithm # it's faster than lzo but some kernels don't have it
 	echo $((512*1024*1024)) > /sys/block/zram0/disksize
 	mkswap /dev/block/zram0

@@ -69,4 +69,12 @@
         android:id="@+id/version"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Icon by JovieBrett"
+        android:id="@+id/textView3"
+        android:layout_above="@+id/version"
+        android:layout_centerHorizontal="true" />
 </RelativeLayout>
