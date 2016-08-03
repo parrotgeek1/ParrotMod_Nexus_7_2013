@@ -219,4 +219,9 @@ public class MyService extends Service {
         if(mainActivity != null) mainActivity.setRunning(running);
         MyService.running = running;
     }
+
+    public void setHiPerf(boolean on) {
+        shell.run("echo " + (on ? "NO_" : "") + "GENTLE_FAIR_SLEEPERS > /sys/kernel/debug/sched_features");
+        shell.run("echo " + (on ? "" : "NO_") + "HRTICK > /sys/kernel/debug/sched_features");
+    }
 }

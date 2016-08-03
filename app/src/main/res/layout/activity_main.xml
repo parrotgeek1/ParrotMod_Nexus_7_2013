@@ -30,9 +30,8 @@
         android:text="Hide App Icon"
         android:id="@+id/button4"
         android:onClick="hideicon"
-        android:layout_below="@+id/button"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="40dp" />
+        android:layout_below="@+id/textView2"
+        android:layout_centerHorizontal="true" />
 
     <Button
         android:layout_width="wrap_content"
@@ -59,8 +58,9 @@
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="ParrotMod is not running."
         android:id="@+id/textView2"
-        android:layout_below="@+id/button"
-        android:layout_centerHorizontal="true" />
+        android:layout_below="@+id/hiperf"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="15dp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -77,4 +77,13 @@
         android:id="@+id/textView3"
         android:layout_above="@+id/version"
         android:layout_centerHorizontal="true" />
+
+    <Switch
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="High Performance Mode (reduces battery life)    "
+        android:id="@+id/hiperf"
+        android:layout_below="@+id/button"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="15dp" />
 </RelativeLayout>
