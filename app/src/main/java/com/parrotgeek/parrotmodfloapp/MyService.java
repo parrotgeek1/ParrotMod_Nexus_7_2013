@@ -158,18 +158,7 @@ public class MyService extends Service {
         boolean su = SystemPropertiesProxy.getInstance().getBoolean("supolicy.loaded",false);
         if (!su) {
             setRunning(false);
-            AlertDialog alertDialog = new AlertDialog.Builder(getApplicationContext()).create();
-            alertDialog.setTitle("ParrotMod error");
-            alertDialog.setMessage("You don't have root, or you denied the root request!\n\n" +
-                    "NOTE: ParrotMod currently only works with SuperSU, not King(o)Root. This will not be fixed.");
-            // Alert dialog button
-            alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Dismiss",
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();// use dismiss to cancel alert dialog
-                        }
-                    });
-            alertDialog.show();
+            startActivity(new Intent(this,MainActivity.class).putExtra("rooterror",true));
             return START_NOT_STICKY;
         }
         final String[] cmd = new String[]{"su", "-c", " sh '" + script + "' </dev/null >/dev/null 2>&1"};

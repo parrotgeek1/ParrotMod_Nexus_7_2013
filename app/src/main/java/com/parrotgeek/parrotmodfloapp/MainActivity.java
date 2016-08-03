@@ -1,6 +1,8 @@
 package com.parrotgeek.parrotmodfloapp;
 
+import android.app.AlertDialog;
 import android.content.ComponentName;
+import android.content.DialogInterface;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -17,6 +19,11 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        if(getIntent().getBooleanExtra("rooterror",false))  {
+            rootpopup();
+        }
+
         super.onCreate(savedInstanceState);
         rec = new BootReceiver();
         setContentView(R.layout.activity_main);
@@ -73,9 +80,33 @@ public class MainActivity extends AppCompatActivity {
         finish();
     }
 
+    public void rootpopup() {
+        AlertDialog alertDialog = new AlertDialog.Builder(getApplicationContext()).create();
+        alertDialog.setTitle("ParrotMod error");
+        alertDialog.setMessage("You don't have root, or you denied the root request!\n\n" +
+                "NOTE: ParrotMod currently only works with SuperSU, not King(o)Root. This will not be fixed.");
+        // Alert dialog button
+        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Dismiss",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();// use dismiss to cancel alert dialog
+                        finish();
+                    }
+                });
+        alertDialog.show();
+    }
+
     @Override
     public void onDestroy() {
         MyService.mainActivity = null;
         super.onDestroy();
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        if(intent.getBooleanExtra("rooterror",false))  {
+            rootpopup();
+        }
     }
 }
