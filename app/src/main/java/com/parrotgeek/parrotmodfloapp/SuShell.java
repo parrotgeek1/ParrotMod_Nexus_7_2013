@@ -14,6 +14,7 @@ public class SuShell {
             dos = new DataOutputStream(proc.getOutputStream());
         } catch (Exception e) {
             Log.e("sushell",e.getLocalizedMessage());
+            Crasher.crash();
         }
     }
 
@@ -23,6 +24,7 @@ public class SuShell {
             dos.flush();
         } catch (Exception e) {
             Log.e("sushell",e.getLocalizedMessage());
+            Crasher.crash();
         }
     }
 
@@ -34,6 +36,7 @@ public class SuShell {
             proc.waitFor();
         } catch (Exception e) {
             Log.e("sushell",e.getLocalizedMessage());
+            Crasher.crash();
         }
     }
 }

@@ -135,6 +135,7 @@ public class MyService extends Service {
         } catch (Exception e) {
             Log.e(TAG, e.getMessage());
             Toast.makeText(getApplicationContext(), "COPY ERROR: " + e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+            Crasher.crash();
         }
 
     }
@@ -146,6 +147,7 @@ public class MyService extends Service {
         } catch (Exception e) {
             Toast.makeText(getApplicationContext(), "EXEC ERROR: " + e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
             setRunning(false);
+            Crasher.crash();
             return null;
         }
     }
@@ -169,6 +171,7 @@ public class MyService extends Service {
                     str = execCmd(cmd);
                     if(str == null) {
                         Log.e(TAG, "STOP LOOP due to exec error");
+                        Crasher.crash();
                         return;
                     }
                 }
