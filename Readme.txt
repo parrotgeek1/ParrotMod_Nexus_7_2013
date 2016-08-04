@@ -1,7 +1,7 @@
 What is ParrotMod?
 ==================
 
-This is a mod to greatly improve the touchscreen and multitasking performance of the 2013 Nexus 7, on ANY rooted ROM (4.4+), and work around a hardware problem with the gyroscope/accelerometer (auto rotate).
+This is a mod to greatly improve the touchscreen and multitasking performance of the 2013 Nexus 7, on ANY rooted ROM, and work around a hardware problem with the gyroscope/accelerometer (auto rotate).
 
 (Got a 2012 Nexus 7? Use this version: http://forum.xda-developers.com/nexus-7/orig-development/parrotmod-speed-2012-nexus-7-emmc-fix-t3300416)
 
