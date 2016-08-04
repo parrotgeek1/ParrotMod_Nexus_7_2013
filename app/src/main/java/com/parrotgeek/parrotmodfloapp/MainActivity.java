@@ -3,12 +3,16 @@ package com.parrotgeek.parrotmodfloapp;
 import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.content.Intent;
 import android.net.Uri;
 import android.content.pm.PackageManager;
+import android.widget.CompoundButton;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -16,6 +20,8 @@ public class MainActivity extends AppCompatActivity {
     private boolean running = false;
     private BootReceiver rec;
     private Intent bcintent = new Intent(Intent.ACTION_BOOT_COMPLETED);
+    private SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+    private Switch perfswitch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,12 +42,30 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e){
             finish();
         }
+        perfswitch = (Switch)findViewById(R.id.hiperf);
+        if(perfswitch != null) {
+            perfswitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    MyService.self.setHiPerf(isChecked);
+                    sharedPreferences.edit().putBoolean("hiperf",isChecked).apply();
+                }
+            });
+        } else {
+            Crasher.crash();
+        }
     }
 
     @Override
     public void onResume() {
         super.onResume();
         setRunning(MyService.running);
+        if(perfswitch != null) {
+            perfswitch.setChecked(sharedPreferences.getBoolean("hiperf",false));
+        } else {
+            Crasher.crash();
+        }
+
     }
 
     public void setRunning(final boolean running) {
@@ -51,7 +75,11 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 TextView tv = (TextView)findViewById(R.id.textView2);
                 String state = "ParrotMod is " + (running ? "" : "not ") + "running.";
-                if(tv != null) tv.setText(state);
+                if(tv != null) {
+                    tv.setText(state);
+                } else {
+                    Crasher.crash();
+                }
             }
         });
     }

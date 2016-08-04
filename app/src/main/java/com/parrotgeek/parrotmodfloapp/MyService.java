@@ -1,13 +1,12 @@
 package com.parrotgeek.parrotmodfloapp;
 
-import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -17,8 +16,8 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
+import android.preference.PreferenceManager;
 import android.util.Log;
-import android.widget.Toast;
 import android.app.PendingIntent;
 
 import java.io.FileOutputStream;
@@ -36,11 +35,16 @@ public class MyService extends Service {
 
     private String emicb;
 
+    public static MyService self;
+
+    private SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+
     private class GyroRunnable implements Runnable {
         private SensorManager mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         Sensor accel = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         Sensor gyro = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE_UNCALIBRATED);
         private SensorEventListener mSensorEventListener;
+        private SharedPreferences.OnSharedPreferenceChangeListener changeListener;
         long changed = System.currentTimeMillis();
         private Runnable mRunnable1 = new Runnable() {
             @Override
@@ -96,9 +100,16 @@ public class MyService extends Service {
                 if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
                     wl.acquire(4000); // 4 sec
                     unregister();
+                    if(sharedPreferences.getBoolean("hiperf",false)) {
+                        setHiPerf(false); // saves battery, but, don't want to mess with settings if box not checked
+                    }
+
                 } else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
                     if(wl.isHeld()) wl.release();
                     register();
+                    if(sharedPreferences.getBoolean("hiperf",false)) {
+                        setHiPerf(true); // only when screen on
+                    }
                 } else if(intent.getAction().equals(Intent.ACTION_POWER_CONNECTED)
                         ||intent.getAction().equals(Intent.ACTION_POWER_DISCONNECTED)
                         ||intent.getAction().equals("android.intent.action.HDMI_PLUGGED")) {
@@ -134,7 +145,6 @@ public class MyService extends Service {
             out.close();
         } catch (Exception e) {
             Log.e(TAG, e.getMessage());
-            Toast.makeText(getApplicationContext(), "COPY ERROR: " + e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
             Crasher.crash();
         }
 
@@ -145,7 +155,6 @@ public class MyService extends Service {
             java.util.Scanner s = new java.util.Scanner(Runtime.getRuntime().exec(cmd).getInputStream()).useDelimiter("\\A");
             return s.hasNext() ? s.next().trim() : "";
         } catch (Exception e) {
-            Toast.makeText(getApplicationContext(), "EXEC ERROR: " + e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
             setRunning(false);
             Crasher.crash();
             return null;
@@ -154,6 +163,7 @@ public class MyService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        self = this;
         copyFile("ParrotMod.sh");
         copyFile("emi_config.bin");
         String script = getApplicationContext().getApplicationInfo().dataDir + "/ParrotMod.sh";
@@ -187,6 +197,8 @@ public class MyService extends Service {
         mGyroRunnable = new GyroRunnable();
         new Thread(mGyroRunnable).start();
 
+        setHiPerf(sharedPreferences.getBoolean("hiperf",false));
+
         setRunning(true);
         Intent notificationIntent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
         notificationIntent.setData(Uri.parse("package:" + getPackageName()));
@@ -211,8 +223,10 @@ public class MyService extends Service {
         super.onDestroy();
         setRunning(false);
         unregisterReceiver(mGyroRunnable.mReceiver);
-        sendBroadcast(new Intent("com.parrotgeek.parrotmodfloapp.action.START_SERVICE"));
+        setHiPerf(false);
         shell.end();
+        self = null;
+        sendBroadcast(new Intent("com.parrotgeek.parrotmodfloapp.action.START_SERVICE"));
     }
 
     private void setRunning(boolean running) {
