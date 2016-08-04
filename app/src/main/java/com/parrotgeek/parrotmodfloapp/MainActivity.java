@@ -47,7 +47,11 @@ public class MainActivity extends AppCompatActivity {
             perfswitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    MyService.self.setHiPerf(isChecked);
+                    if(MyService.self != null) {
+                        MyService.self.setHiPerf(isChecked);
+                    } else {
+                        Toast.makeText(MainActivity.this,"You need to enable ParrotMod to apply this change",Toast.LENGTH_LONG).show();
+                    }
                     sharedPreferences.edit().putBoolean("hiperf",isChecked).apply();
                 }
             });
