@@ -49,8 +49,8 @@ public class MyService extends Service {
         private Runnable mRunnable1 = new Runnable() {
             @Override
             public void run() {
-                if(changed < (System.currentTimeMillis() - 300)) {
-                    // if didn't get sensor in 300ms restart it
+                if(changed < (System.currentTimeMillis() - 500)) {
+                    // if didn't get sensor in 500ms restart it
                     Log.d(TAG,"---- RESET SENSORS ----");
                     unregister();
                     register();
