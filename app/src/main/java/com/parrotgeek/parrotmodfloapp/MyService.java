@@ -6,7 +6,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -16,7 +15,6 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.app.PendingIntent;
 
@@ -37,14 +35,11 @@ public class MyService extends Service {
 
     public static MyService self;
 
-    private SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-
     private class GyroRunnable implements Runnable {
         private SensorManager mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        Sensor accel = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        Sensor gyro = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE_UNCALIBRATED);
+        private Sensor accel = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        private Sensor gyro = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE_UNCALIBRATED);
         private SensorEventListener mSensorEventListener;
-        private SharedPreferences.OnSharedPreferenceChangeListener changeListener;
         long changed = System.currentTimeMillis();
         private Runnable mRunnable1 = new Runnable() {
             @Override
@@ -57,7 +52,13 @@ public class MyService extends Service {
                 }
             }
         };
-        Handler handler = new Handler();
+        private Runnable calibrun = new Runnable() {
+            @Override
+            public void run() {
+                calib();
+            }
+        };
+        private Handler handler = new Handler();
         @Override
         public void run() {
             mSensorEventListener = new SensorEventListener() {
@@ -98,18 +99,14 @@ public class MyService extends Service {
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
-                    wl.acquire(4000); // 4 sec
+                    wl.acquire(5000); // 5 sec
                     unregister();
-                    if(sharedPreferences.getBoolean("hiperf",false)) {
-                        setHiPerf(false); // saves battery, but, don't want to mess with settings if box not checked
-                    }
-
+                    handler.postDelayed(calibrun,2000); // calib in 2sec
                 } else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
+                    handler.removeCallbacks(calibrun); // dont calibrate
                     if(wl.isHeld()) wl.release();
                     register();
-                    if(sharedPreferences.getBoolean("hiperf",false)) {
-                        setHiPerf(true); // only when screen on
-                    }
+                    shell.run("cat '"+emicb+"' > /dev/elan-iap");
                 } else if(intent.getAction().equals(Intent.ACTION_POWER_CONNECTED)
                         ||intent.getAction().equals(Intent.ACTION_POWER_DISCONNECTED)
                         ||intent.getAction().equals("android.intent.action.HDMI_PLUGGED")) {
@@ -150,20 +147,8 @@ public class MyService extends Service {
 
     }
 
-    private String execCmd(String[] cmd) {
-        try {
-            java.util.Scanner s = new java.util.Scanner(Runtime.getRuntime().exec(cmd).getInputStream()).useDelimiter("\\A");
-            return s.hasNext() ? s.next().trim() : "";
-        } catch (Exception e) {
-            setRunning(false);
-            Crasher.crash();
-            return null;
-        }
-    }
-
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        self = this;
         copyFile("ParrotMod.sh");
         copyFile("emi_config.bin");
         String script = getApplicationContext().getApplicationInfo().dataDir + "/ParrotMod.sh";
@@ -173,20 +158,6 @@ public class MyService extends Service {
             startActivity(new Intent(this,MainActivity.class).putExtra("rooterror",true));
             return START_NOT_STICKY;
         }
-        final String[] cmd = new String[]{"su", "-c", " sh '" + script + "' </dev/null >/dev/null 2>&1"};
-        new Thread(new Runnable() {
-            public void run() {
-                String str;
-                while (true) {
-                    str = execCmd(cmd);
-                    if(str == null) {
-                        Log.e(TAG, "STOP LOOP due to exec error");
-                        Crasher.crash();
-                        return;
-                    }
-                }
-            }
-        }).start();
 
         shell = new SuShell();
         emicb = getApplicationContext().getApplicationInfo().dataDir + "/emi_config.bin";
@@ -197,7 +168,7 @@ public class MyService extends Service {
         mGyroRunnable = new GyroRunnable();
         new Thread(mGyroRunnable).start();
 
-        setHiPerf(sharedPreferences.getBoolean("hiperf",false));
+        shell.run("sh '" + script + "'");
 
         setRunning(true);
         Intent notificationIntent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
@@ -214,7 +185,7 @@ public class MyService extends Service {
                 .build();
         startForeground(0x600dc0de, notification);
 
-
+        self = this;
         return START_STICKY;
     }
 
@@ -223,7 +194,6 @@ public class MyService extends Service {
         super.onDestroy();
         setRunning(false);
         unregisterReceiver(mGyroRunnable.mReceiver);
-        setHiPerf(false);
         shell.end();
         self = null;
         sendBroadcast(new Intent("com.parrotgeek.parrotmodfloapp.action.START_SERVICE"));
@@ -234,8 +204,17 @@ public class MyService extends Service {
         MyService.running = running;
     }
 
-    public void setHiPerf(boolean on) {
-        shell.run("echo " + (on ? "NO_" : "") + "GENTLE_FAIR_SLEEPERS > /sys/kernel/debug/sched_features");
-        shell.run("echo " + (on ? "" : "NO_") + "HRTICK > /sys/kernel/debug/sched_features");
+    private void waitsec(int sec) {
+        try {
+            Thread.sleep(1000*sec);
+        } catch (InterruptedException e) {
+            Crasher.crash();
+        }
+    }
+
+    private void calib() {
+        shell.run("pwr=$(cat /sys/devices/i2c-3/3-0010/power/control); echo on > /sys/devices/i2c-3/3-0010/power/control; echo ff > /proc/ektf_dbg");
+        waitsec(1);
+        shell.run("echo $pwr > /sys/devices/i2c-3/3-0010/power/control");
     }
 }

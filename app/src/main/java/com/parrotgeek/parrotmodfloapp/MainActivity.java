@@ -20,17 +20,14 @@ public class MainActivity extends AppCompatActivity {
     private boolean running = false;
     private BootReceiver rec;
     private Intent bcintent = new Intent(Intent.ACTION_BOOT_COMPLETED);
-    private SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-    private Switch perfswitch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
         if(getIntent().getBooleanExtra("rooterror",false))  {
             rootpopup();
         }
-
-        super.onCreate(savedInstanceState);
         rec = new BootReceiver();
         setContentView(R.layout.activity_main);
         MyService.mainActivity = this;
@@ -42,33 +39,12 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e){
             finish();
         }
-        perfswitch = (Switch)findViewById(R.id.hiperf);
-        if(perfswitch != null) {
-            perfswitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    if(MyService.self != null) {
-                        MyService.self.setHiPerf(isChecked);
-                    } else {
-                        Toast.makeText(MainActivity.this,"You need to enable ParrotMod to apply this change",Toast.LENGTH_LONG).show();
-                    }
-                    sharedPreferences.edit().putBoolean("hiperf",isChecked).apply();
-                }
-            });
-        } else {
-            Crasher.crash();
-        }
     }
 
     @Override
     public void onResume() {
         super.onResume();
         setRunning(MyService.running);
-        if(perfswitch != null) {
-            perfswitch.setChecked(sharedPreferences.getBoolean("hiperf",false));
-        } else {
-            Crasher.crash();
-        }
 
     }
 

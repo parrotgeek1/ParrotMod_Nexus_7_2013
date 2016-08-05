@@ -9,29 +9,26 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 public class SuShell {
-    class StreamGobbler extends Thread
-    {
+    public class StreamGobbler extends Thread {
         InputStream is;
         String type;
 
-        StreamGobbler(InputStream is, String type)
-        {
+        public StreamGobbler(InputStream is, String type) {
             this.is = is;
             this.type = type;
         }
 
-        public void run()
-        {
-            try
-            {
+        public void run() {
+            try {
                 InputStreamReader isr = new InputStreamReader(is);
                 BufferedReader br = new BufferedReader(isr);
-                String line=null;
-                while ( (line = br.readLine()) != null)
-                    System.out.println(type + ">" + line);
-            } catch (IOException ioe)
-            {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    Log.d(type, line);
+                }
+            } catch (IOException ioe) {
                 ioe.printStackTrace();
+                Crasher.crash();
             }
         }
     }
@@ -44,11 +41,11 @@ public class SuShell {
             dos = new DataOutputStream(proc.getOutputStream());
             // any error message?
             StreamGobbler errorGobbler = new
-                    StreamGobbler(proc.getErrorStream(), "ERROR");
+                    StreamGobbler(proc.getErrorStream(), "sushell ERROR");
 
             // any output?
             StreamGobbler outputGobbler = new
-                    StreamGobbler(proc.getInputStream(), "OUTPUT");
+                    StreamGobbler(proc.getInputStream(), "sushell OUTPUT");
 
             // kick them off
             errorGobbler.start();
@@ -59,7 +56,7 @@ public class SuShell {
         }
     }
 
-    public void run(String cmd) {
+    public synchronized void run(String cmd) {
         try {
             dos.writeBytes(cmd+"\n");
             dos.flush();
@@ -69,7 +66,7 @@ public class SuShell {
         }
     }
 
-    public void end() {
+    public synchronized void end() {
         try {
             dos.writeBytes("exit\n");
             dos.flush();
