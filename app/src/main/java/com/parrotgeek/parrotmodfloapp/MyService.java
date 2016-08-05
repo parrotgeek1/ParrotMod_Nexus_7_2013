@@ -144,7 +144,6 @@ public class MyService extends Service {
             Log.e(TAG, e.getMessage());
             Crasher.crash();
         }
-
     }
 
     @Override
@@ -155,7 +154,7 @@ public class MyService extends Service {
         boolean su = SystemPropertiesProxy.getInstance().getBoolean("supolicy.loaded",false);
         if (!su) {
             setRunning(false);
-            startActivity(new Intent(this,MainActivity.class).putExtra("rooterror",true));
+            startActivity(new Intent(this,MainActivity.class).putExtra("rooterror",true).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
             return START_NOT_STICKY;
         }
 
@@ -207,9 +206,7 @@ public class MyService extends Service {
     private void waitsec(int sec) {
         try {
             Thread.sleep(1000*sec);
-        } catch (InterruptedException e) {
-            Crasher.crash();
-        }
+        } catch (InterruptedException e) {}
     }
 
     private void calib() {
