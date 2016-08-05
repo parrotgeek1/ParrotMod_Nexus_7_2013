@@ -3,16 +3,13 @@ package com.parrotgeek.parrotmodfloapp;
 import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.content.Intent;
 import android.net.Uri;
 import android.content.pm.PackageManager;
-import android.widget.CompoundButton;
-import android.widget.Switch;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -53,10 +50,10 @@ public class MainActivity extends AppCompatActivity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                TextView tv = (TextView)findViewById(R.id.textView2);
-                String state = "ParrotMod is " + (running ? "" : "not ") + "running.";
-                if(tv != null) {
-                    tv.setText(state);
+                Button btn = (Button) findViewById(R.id.button);
+                if(btn != null) {
+                    btn.setText(running ? "ParrotMod is enabled" : "Enable ParrotMod");
+                    btn.setEnabled(!running);
                 } else {
                     Crasher.crash();
                 }

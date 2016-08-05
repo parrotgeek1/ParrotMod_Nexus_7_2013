@@ -22,6 +22,7 @@
         android:id="@+id/button"
         android:onClick="start"
         android:layout_below="@+id/textView"
+        android:layout_marginBottom="30dp"
         android:layout_centerHorizontal="true" />
         
     <Button
@@ -30,7 +31,7 @@
         android:text="Hide App Icon"
         android:id="@+id/button4"
         android:onClick="hideicon"
-        android:layout_below="@+id/textView2"
+        android:layout_below="@+id/button"
         android:layout_centerHorizontal="true" />
 
     <Button
@@ -39,7 +40,7 @@
         android:text="ParrotGeek Software Site"
         android:id="@+id/button2"
         android:onClick="website"
-        android:layout_below="@+id/button4"
+        android:layout_above="@+id/button3"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="40dp" />
 
@@ -49,18 +50,8 @@
         android:text="XDA Thread"
         android:id="@+id/button3"
         android:onClick="xda"
-        android:layout_below="@+id/button2"
+        android:layout_above="@+id/textView3"
         android:layout_centerHorizontal="true" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="ParrotMod is not running."
-        android:id="@+id/textView2"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="15dp"
-        android:layout_below="@+id/button" />
 
     <TextView
         android:layout_width="wrap_content"

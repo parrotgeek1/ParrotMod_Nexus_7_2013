@@ -176,7 +176,7 @@ public class MyService extends Service {
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent resultPendingIntent = PendingIntent.getActivity(this,0,notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         Notification notification = new Notification.Builder(getApplicationContext())
-                .setContentTitle("ParrotMod is running")
+                .setContentTitle("ParrotMod is enabled")
                 .setContentText("Tap here and go to Notifications to hide this.")
                 .setSmallIcon(R.drawable.notificon)
                 .setContentIntent(resultPendingIntent)
