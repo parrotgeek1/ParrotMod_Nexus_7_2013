@@ -28,7 +28,7 @@ public class SuShell {
                 }
             } catch (IOException ioe) {
                 ioe.printStackTrace();
-                Crasher.crash();
+                MyService.self.suerror();
             }
         }
     }
@@ -52,7 +52,7 @@ public class SuShell {
             outputGobbler.start();
         } catch (Exception e) {
             Log.e("sushell",e.getLocalizedMessage());
-            Crasher.crash();
+            MyService.self.suerror();
         }
     }
 
@@ -62,7 +62,7 @@ public class SuShell {
             dos.flush();
         } catch (Exception e) {
             Log.e("sushell",e.getLocalizedMessage());
-            Crasher.crash();
+            MyService.self.suerror();
         }
     }
 
@@ -74,7 +74,7 @@ public class SuShell {
             proc.waitFor();
         } catch (Exception e) {
             Log.e("sushell",e.getLocalizedMessage());
-            Crasher.crash();
+            MyService.self.suerror();
         }
     }
 }

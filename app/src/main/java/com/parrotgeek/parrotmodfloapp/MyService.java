@@ -12,6 +12,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
@@ -26,13 +27,10 @@ public class MyService extends Service {
     public static boolean running = false;
     private static final String TAG = "ParrotMod";
     public static MainActivity mainActivity;
-
     private PowerManager.WakeLock wl;
-
     private SuShell shell;
-
     private String emicb;
-
+    public static boolean actuallyStop;
     public static MyService self;
 
     private class GyroRunnable implements Runnable {
@@ -94,7 +92,6 @@ public class MyService extends Service {
             mSensorManager.registerListener(mSensorEventListener, gyro, 10000000); // 10 sec, basically to keep it running
         }
 
-
         public BroadcastReceiver mReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -104,13 +101,13 @@ public class MyService extends Service {
                     handler.postDelayed(calibrun,2000); // calib in 2sec
                 } else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
                     handler.removeCallbacks(calibrun); // dont calibrate
-                    if(wl.isHeld()) wl.release();
                     register();
                     shell.run("cat '"+emicb+"' > /dev/elan-iap");
+                    if(wl.isHeld()) wl.release();
                 } else if(intent.getAction().equals(Intent.ACTION_POWER_CONNECTED)
                         ||intent.getAction().equals(Intent.ACTION_POWER_DISCONNECTED)
                         ||intent.getAction().equals("android.intent.action.HDMI_PLUGGED")) {
-                    wl.acquire(500);
+                    wl.acquire(2000);
                     shell.run("cat '"+emicb+"' > /dev/elan-iap");
                 }
             }
@@ -148,15 +145,16 @@ public class MyService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        MyService.actuallyStop = false;
+        String model = Build.DEVICE;
+        if(!(model.equals("flo")||model.equals("deb"))) {
+            Log.d(TAG,"unsupported device: "+model);
+            MyService.actuallyStop = true;
+            return START_NOT_STICKY;
+        }
         copyFile("ParrotMod.sh");
         copyFile("emi_config.bin");
         String script = getApplicationContext().getApplicationInfo().dataDir + "/ParrotMod.sh";
-        boolean su = SystemPropertiesProxy.getInstance().getBoolean("supolicy.loaded",false);
-        if (!su) {
-            setRunning(false);
-            startActivity(new Intent(this,MainActivity.class).putExtra("rooterror",true).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-            return START_NOT_STICKY;
-        }
 
         shell = new SuShell();
         emicb = getApplicationContext().getApplicationInfo().dataDir + "/emi_config.bin";
@@ -167,7 +165,7 @@ public class MyService extends Service {
         mGyroRunnable = new GyroRunnable();
         new Thread(mGyroRunnable).start();
 
-        shell.run("sh '" + script + "'");
+        shell.run(". '" + script + "'");
 
         setRunning(true);
         Intent notificationIntent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
@@ -184,7 +182,7 @@ public class MyService extends Service {
                 .build();
         startForeground(0x600dc0de, notification);
 
-        self = this;
+        MyService.self = this;
         return START_STICKY;
     }
 
@@ -195,7 +193,7 @@ public class MyService extends Service {
         unregisterReceiver(mGyroRunnable.mReceiver);
         shell.end();
         self = null;
-        sendBroadcast(new Intent("com.parrotgeek.parrotmodfloapp.action.START_SERVICE"));
+        if(!MyService.actuallyStop) sendBroadcast(new Intent("com.parrotgeek.parrotmodfloapp.action.START_SERVICE"));
     }
 
     private void setRunning(boolean running) {
@@ -206,12 +204,19 @@ public class MyService extends Service {
     private void waitsec(int sec) {
         try {
             Thread.sleep(1000*sec);
-        } catch (InterruptedException e) {}
+        } catch (InterruptedException e) {
+            Log.wtf(TAG,e.getMessage());
+        }
     }
 
     private void calib() {
         shell.run("pwr=$(cat /sys/devices/i2c-3/3-0010/power/control); echo on > /sys/devices/i2c-3/3-0010/power/control; echo ff > /proc/ektf_dbg");
         waitsec(1);
         shell.run("echo $pwr > /sys/devices/i2c-3/3-0010/power/control");
+    }
+    public void suerror() {
+        setRunning(false);
+        startActivity(new Intent(this,MainActivity.class).putExtra("rooterror",true).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+        MyService.actuallyStop = true;
     }
 }

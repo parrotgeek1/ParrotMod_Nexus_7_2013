@@ -53,14 +53,13 @@ for m in /data /realdata /cache /system ; do
 	mount | grep "$m" | grep -q f2fs && mount -t f2fs -o remount,nobarrier,flush_merge,inline_xattr,inline_data,inline_dentry "$m" "$m"
 done
 
-#need to handle all f2fs here!
-for f in /sys/fs/ext4/*; do
+(for f in /sys/fs/ext4/*; do
 	test "$f" = "/sys/fs/ext4/features" && continue
 	echo 8 > ${f}/max_writeback_mb_bump # don't spend too long writing ONE file if multiple need to write
-done
+done) 2>/dev/null
 
 for f in /sys/block/*; do
-	echo 0 > "${f}/queue/add_random" # don't contribute to entropy
+	echo 0 > "${f}/queue/add_random" 2>/dev/null # don't contribute to entropy
 done
 
 if test -e /sys/block/dm-0; then

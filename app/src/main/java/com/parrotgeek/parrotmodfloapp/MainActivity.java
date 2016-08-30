@@ -3,6 +3,7 @@ package com.parrotgeek.parrotmodfloapp;
 import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.DialogInterface;
+import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -21,6 +22,35 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        String model = Build.DEVICE;
+        if(!(model.equals("flo")||model.equals("deb"))) {
+            AlertDialog alertDialog = new AlertDialog.Builder(getApplicationContext()).create();
+            alertDialog.setTitle("ParrotMod does not support this device!");
+            alertDialog.setMessage("Only the Nexus 7 2013 (both Wi-Fi and LTE) is supported.");
+            // Alert dialog button
+            alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Dismiss",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();// use dismiss to cancel alert dialog
+                            finish();
+                        }
+                    });
+            alertDialog.show();
+            this.running = false;
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Button btn = (Button) findViewById(R.id.button);
+                    if(btn != null) {
+                        btn.setText("Unsupported device!");
+                        btn.setEnabled(false);
+                    } else {
+                        Crasher.crash();
+                    }
+                }
+            });
+        }
 
         if(getIntent().getBooleanExtra("rooterror",false))  {
             rootpopup();
@@ -87,9 +117,8 @@ public class MainActivity extends AppCompatActivity {
 
     public void rootpopup() {
         AlertDialog alertDialog = new AlertDialog.Builder(getApplicationContext()).create();
-        alertDialog.setTitle("ParrotMod error");
-        alertDialog.setMessage("You don't have root, or you denied the root request!\n\n" +
-                "NOTE: ParrotMod currently only works with SuperSU, not King(o)Root. This will not be fixed.");
+        alertDialog.setTitle("ParrotMod needs root access!");
+        alertDialog.setMessage("You don't have root access, it is disabled, or you denied the root request.");
         // Alert dialog button
         alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Dismiss",
                 new DialogInterface.OnClickListener() {
