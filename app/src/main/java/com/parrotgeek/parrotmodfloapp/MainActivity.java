@@ -25,7 +25,7 @@ public class MainActivity extends AppCompatActivity {
 
         String model = Build.DEVICE;
         if(!(model.equals("flo")||model.equals("deb"))) {
-            AlertDialog alertDialog = new AlertDialog.Builder(getApplicationContext()).create();
+            AlertDialog alertDialog = new AlertDialog.Builder(this).create();
             alertDialog.setTitle("ParrotMod does not support this device!");
             alertDialog.setMessage("Only the Nexus 7 2013 (both Wi-Fi and LTE) is supported.");
             // Alert dialog button
@@ -116,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void rootpopup() {
-        AlertDialog alertDialog = new AlertDialog.Builder(getApplicationContext()).create();
+        AlertDialog alertDialog = new AlertDialog.Builder(this).create();
         alertDialog.setTitle("ParrotMod needs root access!");
         alertDialog.setMessage("You don't have root access, it is disabled, or you denied the root request.");
         // Alert dialog button

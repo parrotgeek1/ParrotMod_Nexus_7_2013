@@ -4,6 +4,7 @@ import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.Externalizable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -51,6 +52,17 @@ public class SuShell {
             // kick them off
             errorGobbler.start();
             outputGobbler.start();
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        proc.waitFor();
+                    } catch (Exception e) {
+                        MyService.self.suerror();
+                    }
+                    MyService.self.suerror();
+                }
+            }).start();
         } catch (Exception e) {
             Log.e("sushell",e.getLocalizedMessage());
             MyService.self.suerror();

@@ -215,6 +215,8 @@ public class MyService extends Service {
         shell.run("echo $pwr > /sys/devices/i2c-3/3-0010/power/control");
     }
     public void suerror() {
+        if(MyService.actuallyStop) return;
+        Log.e(TAG, "suerror");
         setRunning(false);
         startActivity(new Intent(this,MainActivity.class).putExtra("rooterror",true).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
         MyService.actuallyStop = true;
