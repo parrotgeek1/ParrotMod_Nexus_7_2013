@@ -30,6 +30,7 @@ public class SuShell {
                 ioe.printStackTrace();
                 MyService.self.suerror();
             }
+            if(!isRunning(proc)) MyService.self.suerror();
         }
     }
     private java.lang.Process proc;
@@ -54,9 +55,20 @@ public class SuShell {
             Log.e("sushell",e.getLocalizedMessage());
             MyService.self.suerror();
         }
+        if(!isRunning(proc)) MyService.self.suerror();
+    }
+
+    private boolean isRunning(Process process) {
+        try {
+            process.exitValue();
+            return false;
+        } catch (Exception e) {
+            return true;
+        }
     }
 
     public synchronized void run(String cmd) {
+        if(!isRunning(proc)) MyService.self.suerror();
         try {
             dos.writeBytes(cmd+"\n");
             dos.flush();
@@ -67,6 +79,7 @@ public class SuShell {
     }
 
     public synchronized void end() {
+        if(!isRunning(proc)) MyService.self.suerror();
         try {
             dos.writeBytes("exit\n");
             dos.flush();
