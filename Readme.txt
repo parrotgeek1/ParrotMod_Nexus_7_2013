@@ -7,7 +7,7 @@ This is a mod to greatly improve the touchscreen and multitasking performance of
 
 XDA thread: http://forum.xda-developers.com/nexus-7-2013/orig-development/beta-1-parrotmod-improve-2013-nexus-7-t3375928
 
-Download: http://download.parrotgeek.com/android/ParrotMod_Flo
+Download: https://github.com/parrotgeek1/ParrotModFloApp/blob/master/app/app-release.apk?raw=true
 
 GitHub: https://github.com/parrotgeek1/ParrotModFloApp
 
