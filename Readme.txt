@@ -36,11 +36,6 @@ More apps open at once (low memory killer tweak, zram optimizations)
 Enables 512MB of zram, with optimized settings (if the kernel supports it - stock does not)
 Speed up full disk encryption
 
-Known Bugs
-----------
-
-F2FS optimizations are missing, mostly because I don't want to wipe data to test them. Performance should still be fine though.
-
 Thanks
 ------
 
