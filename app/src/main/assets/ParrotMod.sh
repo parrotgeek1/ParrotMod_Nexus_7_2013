@@ -6,7 +6,6 @@ mypid=$$
 echo "-1000" > /proc/$mypid/oom_score_adj
 
 olddir="$(pwd)"
-emicb="$(dirname "$0")/emi_config.bin"
 
 # ram tuning
 
