@@ -56,7 +56,7 @@ Apparently, there is a VERY RARE incompatibility with some touchscreen firmwares
 
 1) Plug the tablet into the computer
 2) Turn on the tablet with power & volume down buttons pressed, to enter the bootloader
-3) download the boot-ts.7z from http://forum.xda-developers.com/show....php?t=2428133 and extract it to a folder, open command prompt/Terminal, cd to that folder
+3) download the boot-ts.7z from http://forum.xda-developers.com/showthread.php?t=2428133 and extract it to a folder, open command prompt/Terminal, cd to that folder
 4) run: fastboot boot boot-ts10-lock.img
 5) your device will bootloop. just run "adb reboot bootloader" after about 30 seconds to get back to bootloader
 4) run: fastboot boot boot-ts-unlock.img

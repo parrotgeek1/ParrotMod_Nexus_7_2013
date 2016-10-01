@@ -6,6 +6,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -16,6 +17,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.app.PendingIntent;
 
@@ -32,6 +34,7 @@ public class MyService extends Service {
     private String emicb;
     public static boolean actuallyStop;
     public static MyService self;
+    private SharedPreferences sharedPreferences;
 
     private class GyroRunnable implements Runnable {
         private SensorManager mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
@@ -89,7 +92,7 @@ public class MyService extends Service {
         private void register() {
             changed = System.currentTimeMillis();
             mSensorManager.registerListener(mSensorEventListener, accel, SensorManager.SENSOR_DELAY_NORMAL); // ~240ms
-            mSensorManager.registerListener(mSensorEventListener, gyro, 10000000); // 10 sec, basically to keep it running
+            mSensorManager.registerListener(mSensorEventListener, gyro, 2500000); // 2.5 sec, basically to keep it running
         }
 
         public BroadcastReceiver mReceiver = new BroadcastReceiver() {
@@ -152,8 +155,18 @@ public class MyService extends Service {
             MyService.actuallyStop = true;
             return START_NOT_STICKY;
         }
-        copyFile("ParrotMod.sh");
-        copyFile("emi_config.bin");
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        try {
+            String version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+            String lastCopied = sharedPreferences.getString("lastcopiedver","");
+            if(!lastCopied.equals(version)) {
+                copyFile("ParrotMod.sh");
+                copyFile("emi_config.bin");
+                sharedPreferences.edit().putString("lastcopiedver",version).commit();
+            }
+        } catch (Exception e) {
+            Crasher.crash();
+        }
         String script = getApplicationContext().getApplicationInfo().dataDir + "/ParrotMod.sh";
 
         shell = new SuShell();

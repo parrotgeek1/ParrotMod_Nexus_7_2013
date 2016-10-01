@@ -1,10 +1,5 @@
 #!/system/bin/sh
 
-# stop this script from being killed
-
-mypid=$$
-echo "-1000" > /proc/$mypid/oom_score_adj
-
 olddir="$(pwd)"
 
 # ram tuning
@@ -19,7 +14,6 @@ setprop dalvik.vm.heapminfree 512k
 setprop dalvik.vm.heapmaxfree 8m
 
 echo 48 > /sys/module/lowmemorykiller/parameters/cost # default 32
-
 echo 1 > /proc/sys/vm/highmem_is_dirtyable # allow LMK to free more ram
 
 settings put global fstrim_mandatory_interval 86400000 # 1 day
