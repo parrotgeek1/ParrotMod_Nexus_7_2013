@@ -1,0 +1,44 @@
+diff --git a/drivers/input/touchscreen/ektf3k.c b/drivers/input/touchscreen/ektf3k.c
+index 4b6a7e7..7718e09 100755
+--- a/drivers/input/touchscreen/ektf3k.c
++++ b/drivers/input/touchscreen/ektf3k.c
+@@ -891,14 +891,14 @@ static int elan_ktf3k_ts_get_power_source(struct i2c_client *client)
+ */
+ 
+ static void update_power_source(void){
+-      unsigned power_source = now_usb_cable_status;
++      //unsigned power_source = now_usb_cable_status;
+       if(private_ts == NULL || work_lock) return;
+ 	// Send power state 1 if USB cable and AC charger was plugged on. 
+-	if (power_source == SLIM_HDMI_MODE) {
++//	if (power_source == SLIM_HDMI_MODE) {
+ 		elan_ktf3k_ts_set_power_source(private_ts->client, HDMI_POWER_SOURCE_CMD);
+-	} else {
+-		elan_ktf3k_ts_set_power_source(private_ts->client, power_source != USB_NO_Cable);
+-	}
++//	} else {
++//		elan_ktf3k_ts_set_power_source(private_ts->client, power_source != USB_NO_Cable);
++//	}
+ }
+ 
+ void touch_callback(unsigned cable_status){ 
+@@ -1648,6 +1648,7 @@ static int elan_ktf3k_ts_probe(struct i2c_client *client,
+     touch_debug(DEBUG_INFO, "[ELAN]misc_register finished!!");	
+ 
+   update_power_source();
++  elan_ktf3k_ts_rough_calibrate(client);
+   return 0;
+ 
+ err_input_register_device_failed:
+@@ -1717,8 +1718,10 @@ static int elan_ktf3k_ts_suspend(struct i2c_client *client, pm_message_t mesg)
+ 	if (rc)
+ 		enable_irq(client->irq);
+ 
+-	if(work_lock == 0)
++	if(work_lock == 0) {
++ 	    rc = elan_ktf3k_ts_rough_calibrate(client);
+ 	    rc = elan_ktf3k_ts_set_power_state(client, PWR_STATE_DEEP_SLEEP);
++	}
+ 
+ 	return 0;
+ }
