@@ -28,9 +28,10 @@ public class SuShell {
                 }
             } catch (IOException ioe) {
                 ioe.printStackTrace();
-                MyService.self.suerror();
             }
-            if(!isRunning(proc)) MyService.self.suerror();
+            if(!isRunning(proc)) {
+                if(MyService.self != null) MyService.self.suerror();
+            }
         }
     }
     private java.lang.Process proc;
@@ -57,16 +58,15 @@ public class SuShell {
                     try {
                         proc.waitFor();
                     } catch (Exception e) {
-                        MyService.self.suerror();
+                        if(MyService.self != null) MyService.self.suerror();
                     }
-                    MyService.self.suerror();
+                    if(MyService.self != null) MyService.self.suerror();
                 }
             }).start();
         } catch (Exception e) {
             Log.e("sushell",e.getLocalizedMessage());
-            MyService.self.suerror();
+             if(MyService.self != null) MyService.self.suerror();
         }
-        if(!isRunning(proc)) MyService.self.suerror();
     }
 
     private boolean isRunning(Process process) {
@@ -79,18 +79,22 @@ public class SuShell {
     }
 
     public synchronized void run(String cmd) {
-        if(!isRunning(proc)) MyService.self.suerror();
+        if(!isRunning(proc)) {
+            if(MyService.self != null) MyService.self.suerror();
+        }
         try {
             dos.writeBytes(cmd+"\n");
             dos.flush();
         } catch (Exception e) {
             Log.e("sushell",e.getLocalizedMessage());
-            MyService.self.suerror();
+            if(MyService.self != null) MyService.self.suerror();
         }
     }
 
     public synchronized void end() {
-        if(!isRunning(proc)) MyService.self.suerror();
+        if(!isRunning(proc)) {
+            if(MyService.self != null) MyService.self.suerror();
+        }
         try {
             dos.writeBytes("exit\n");
             dos.flush();
@@ -98,7 +102,7 @@ public class SuShell {
             proc.waitFor();
         } catch (Exception e) {
             Log.e("sushell",e.getLocalizedMessage());
-            MyService.self.suerror();
+            if(MyService.self != null) MyService.self.suerror();
         }
     }
 }

@@ -160,14 +160,12 @@ public class MyService extends Service {
             String version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
             String lastCopied = sharedPreferences.getString("lastcopiedver","");
             if(!lastCopied.equals(version)) {
-                copyFile("ParrotMod.sh");
                 copyFile("emi_config.bin");
                 sharedPreferences.edit().putString("lastcopiedver",version).commit();
             }
         } catch (Exception e) {
             Crasher.crash();
         }
-        String script = getApplicationContext().getApplicationInfo().dataDir + "/ParrotMod.sh";
 
         shell = new SuShell();
         emicb = getApplicationContext().getApplicationInfo().dataDir + "/emi_config.bin";
@@ -177,8 +175,6 @@ public class MyService extends Service {
 
         mGyroRunnable = new GyroRunnable();
         new Thread(mGyroRunnable).start();
-
-        shell.run(". '" + script + "'");
 
         setRunning(true);
         Intent notificationIntent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
@@ -223,9 +219,9 @@ public class MyService extends Service {
     }
 
     private void calib() {
-        shell.run("pwr=$(cat /sys/devices/i2c-3/3-0010/power/control); echo on > /sys/devices/i2c-3/3-0010/power/control; echo ff > /proc/ektf_dbg");
+        shell.run("echo on > /sys/devices/i2c-3/3-0010/power/control; echo ff > /proc/ektf_dbg");
         waitsec(1);
-        shell.run("echo $pwr > /sys/devices/i2c-3/3-0010/power/control");
+        shell.run("echo auto > /sys/devices/i2c-3/3-0010/power/control");
     }
     public void suerror() {
         if(MyService.actuallyStop) return;
