@@ -1,3 +1,0 @@
-crash when no root (on N?)
-when you update supersu it says there is no root until you reboot
-
