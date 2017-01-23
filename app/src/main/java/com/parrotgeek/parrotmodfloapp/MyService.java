@@ -31,7 +31,8 @@ public class MyService extends Service {
     public static MainActivity mainActivity;
     private PowerManager.WakeLock wl;
     private SuShell shell;
-    private String emicb;
+    private String emicbHdmi;
+	private String emicbNormal;
     public static boolean actuallyStop;
     public static MyService self;
     private SharedPreferences sharedPreferences;
@@ -105,14 +106,20 @@ public class MyService extends Service {
                 } else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
                     handler.removeCallbacks(calibrun); // dont calibrate
                     register();
-                    shell.run("cat '"+emicb+"' > /dev/elan-iap");
+                    shell.run("cat '"+emicbNormal+"' > /dev/elan-iap");
                     if(wl.isHeld()) wl.release();
                 } else if(intent.getAction().equals(Intent.ACTION_POWER_CONNECTED)
-                        ||intent.getAction().equals(Intent.ACTION_POWER_DISCONNECTED)
-                        ||intent.getAction().equals("android.intent.action.HDMI_PLUGGED")) {
+                        ||intent.getAction().equals(Intent.ACTION_POWER_DISCONNECTED)) {
                     wl.acquire(2000);
-                    shell.run("cat '"+emicb+"' > /dev/elan-iap");
-                }
+                    shell.run("cat '"+emicbNormal+"' > /dev/elan-iap");
+				} else if (intent.getAction().equals("android.intent.action.HDMI_PLUGGED")) {
+                    boolean state = intent.getBooleanExtra("state", false);
+                    if(state) {
+                        shell.run("cat '"+emicbHdmi+"' > /dev/elan-iap");
+                    } else {
+                        shell.run("cat '"+emicbNormal+"' > /dev/elan-iap");
+                    }
+				}
             }
         };
     }
@@ -161,6 +168,7 @@ public class MyService extends Service {
             String lastCopied = sharedPreferences.getString("lastcopiedver","");
             if(!lastCopied.equals(version)) {
                 copyFile("emi_config.bin");
+                copyFile("emi_config_hdmi.bin");
                 sharedPreferences.edit().putString("lastcopiedver",version).commit();
             }
         } catch (Exception e) {
@@ -168,7 +176,8 @@ public class MyService extends Service {
         }
 
         shell = new SuShell();
-        emicb = getApplicationContext().getApplicationInfo().dataDir + "/emi_config.bin";
+        emicbNormal = getApplicationContext().getApplicationInfo().dataDir + "/emi_config.bin";
+        emicbHdmi = getApplicationContext().getApplicationInfo().dataDir + "/emi_config_hdmi.bin";
 
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
         wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "parrotmod_touch_calibration");
