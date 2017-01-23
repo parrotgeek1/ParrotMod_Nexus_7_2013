@@ -6,19 +6,14 @@ index 4b6a7e7..7718e09 100755
  */
  
  static void update_power_source(void){
--      unsigned power_source = now_usb_cable_status;
-+      //unsigned power_source = now_usb_cable_status;
        if(private_ts == NULL || work_lock) return;
  	// Send power state 1 if USB cable and AC charger was plugged on. 
--	if (power_source == SLIM_HDMI_MODE) {
-+//	if (power_source == SLIM_HDMI_MODE) {
+	if (power_source == SLIM_HDMI_MODE) {
  		elan_ktf3k_ts_set_power_source(private_ts->client, HDMI_POWER_SOURCE_CMD);
--	} else {
+	} else {
 -		elan_ktf3k_ts_set_power_source(private_ts->client, power_source != USB_NO_Cable);
--	}
-+//	} else {
-+//		elan_ktf3k_ts_set_power_source(private_ts->client, power_source != USB_NO_Cable);
-+//	}
++		elan_ktf3k_ts_set_power_source(private_ts->client, 1);
+	}
  }
  
  void touch_callback(unsigned cable_status){ 
