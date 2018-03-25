@@ -35,6 +35,7 @@ public class MyService extends Service {
 	private String emicbNormal;
     public static boolean actuallyStop;
     public static MyService self;
+	private boolean isHDMI=false;
     private SharedPreferences sharedPreferences;
 
     private class GyroRunnable implements Runnable {
@@ -106,7 +107,11 @@ public class MyService extends Service {
                 } else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
                     handler.removeCallbacks(calibrun); // dont calibrate
                     register();
-                    shell.run("cat '"+emicbNormal+"' > /dev/elan-iap");
+                    if(isHDMI) {
+                        shell.run("cat '"+emicbHdmi+"' > /dev/elan-iap");
+                    } else {
+                        shell.run("cat '"+emicbNormal+"' > /dev/elan-iap");
+                    }
                     if(wl.isHeld()) wl.release();
                 } else if(intent.getAction().equals(Intent.ACTION_POWER_CONNECTED)
                         ||intent.getAction().equals(Intent.ACTION_POWER_DISCONNECTED)) {
@@ -114,6 +119,7 @@ public class MyService extends Service {
                     shell.run("cat '"+emicbNormal+"' > /dev/elan-iap");
 				} else if (intent.getAction().equals("android.intent.action.HDMI_PLUGGED")) {
                     boolean state = intent.getBooleanExtra("state", false);
+			isHDMI = state;
                     if(state) {
                         shell.run("cat '"+emicbHdmi+"' > /dev/elan-iap");
                     } else {
