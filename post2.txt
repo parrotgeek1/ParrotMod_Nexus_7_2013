@@ -3,8 +3,6 @@ Known bugs
 
 crash when no root (on N?) Logcat would be helpful!
 when you update supersu, parrotmod does not work and says there is no root until you reboot
-it does not use emicbhdmi after screen turned off & on (need to keep track of whether HDMI_PLUGGED)
-somehow need a way to use foreground service w/o notification on O
 
 "HELP! MY TOUCHSCREEN HAS STOPPED WORKING AFTER I INSTALLED THIS! YOU SUCK!!!one!1!!1eleven!!!1"
 ---------------------------------
